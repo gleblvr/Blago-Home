@@ -3,6 +3,7 @@
 const cfg = window.BLAGO_CONFIG || {};
 const translations = window.BLAGO_I18N;
 const supportedLanguages = ['ru', 'en', 'he'];
+const languageLabels = {ru: 'Выбор языка', en: 'Choose language', he: 'בחירת שפה'};
 let currentLanguage = getInitialLanguage();
 let propertiesData = null;
 const t = key => translations[currentLanguage][key] ?? translations.ru[key] ?? key;
@@ -34,7 +35,9 @@ function applyLanguage() {
   document.querySelectorAll('[data-i18n-aria]').forEach(node => { const value = dictionary[node.dataset.i18nAria]; if (value !== undefined) node.setAttribute('aria-label', value); });
   document.querySelectorAll('[data-brand-link]').forEach(node => { node.href = '?lang=' + currentLanguage; node.setAttribute('aria-label', dictionary.brandHome); });
   document.getElementById('menu').setAttribute('aria-label', dictionary.openMenu);
-  document.querySelectorAll('[data-lang]').forEach(button => { const active = button.dataset.lang === currentLanguage; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
+  const languageSelect = document.getElementById('language-select');
+  languageSelect.value = currentLanguage;
+  languageSelect.setAttribute('aria-label', languageLabels[currentLanguage]);
 }
 
 function photo(photoData, name) {
@@ -115,6 +118,6 @@ async function setLanguage(language) {
 document.getElementById('year').textContent = new Date().getFullYear();
 document.getElementById('menu').onclick = () => { const nav = document.getElementById('nav'); const open = nav.classList.toggle('open'); document.getElementById('menu').setAttribute('aria-expanded', String(open)); };
 document.querySelectorAll('nav a').forEach(link => link.addEventListener('click', () => { document.getElementById('nav').classList.remove('open'); document.getElementById('menu').setAttribute('aria-expanded', 'false'); }));
-document.querySelectorAll('[data-lang]').forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
+document.getElementById('language-select').addEventListener('change', event => setLanguage(event.target.value));
 applyLanguage();
 render();

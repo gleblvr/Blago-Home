@@ -26,11 +26,14 @@
         <a href="./#service" data-i18n="navTerms">Условия</a>
         <a href="./#contacts" data-i18n="navContacts">Контакты</a>
       </nav>
-      <div class="language-switcher" role="group" aria-label="Language">
-        <button type="button" data-lang="ru">RU</button>
-        <button type="button" data-lang="en">EN</button>
-        <button type="button" data-lang="he">עב</button>
-      </div>
+      <label class="language-switcher">
+        <span class="sr-only">Language</span>
+        <select id="language-select" aria-label="Выбор языка">
+          <option value="ru">🇷🇺 RU</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="he">🇮🇱 עברית</option>
+        </select>
+      </label>
       <a class="button header-cta" href="./#contacts"><span data-i18n="contactUs">Связаться с нами</span> <span>↗</span></a>
     </div>
   </header>
