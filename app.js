@@ -1,9 +1,120 @@
 'use strict';
-const cfg=window.BLAGO_CONFIG||{};
-const safeUrl=s=>{try{const u=new URL(s,location.href);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}};
-function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
-function photo(p,name){const f=el('div',undefined,'photo'+(p.top===undefined?' regular':''));if(p.top!==undefined){f.style.setProperty('--top',p.top+'%');f.style.setProperty('--mobile-top',(p.mobileTop??p.top)+'%')}const i=el('img');i.src=safeUrl(p.src);i.alt=name;i.loading='lazy';f.append(i);return f}
-function amenities(){const a=el('div',undefined,'amenities');['Wi-Fi','Кухня','Стиральная машина'].forEach(s=>a.append(el('span',s)));return a}
-async function getProperties(){if(cfg.supabaseUrl&&cfg.supabaseAnonKey){const r=await fetch(cfg.supabaseUrl+'/rest/v1/properties?visible=eq.true&order=sort_order.asc',{headers:{apikey:cfg.supabaseAnonKey,Authorization:'Bearer '+cfg.supabaseAnonKey}});if(!r.ok)throw Error('Не удалось загрузить объекты. Попробуйте позже.');return r.json()}const r=await fetch('data/properties.json');if(!r.ok)throw Error('Не удалось загрузить каталог.');return r.json()}
-async function render(){try{const properties=(await getProperties()).filter(p=>p.visible);const id=new URLSearchParams(location.search).get('property');if(id){const p=properties.find(p=>p.id===id),main=document.querySelector('main');main.replaceChildren();const section=el('section',undefined,'detail wrap'),back=el('a','← Все объекты','back');back.href='./#properties';section.append(back);if(!p){section.append(el('h1','Объект не найден'),el('p','Возможно, он снят с публикации. Посмотрите другие квартиры.'));main.append(section);return}document.title=p.name+' — BLAGO home';section.append(el('div','ЭЙЛАТ · КВАРТИРЫ ДЛЯ КОМАНД','eyebrow'),el('h1',p.name));const gallery=el('div',undefined,'gallery');(p.photos||[]).forEach(x=>gallery.append(photo(x,p.name)));section.append(gallery,amenities());const info=el('div',undefined,'detail-info');info.append(el('h2','О квартире'),el('p',p.description),el('h3',p.price||'Условия по запросу'),el('p','Демонстрационная версия. Приём заявок пока не открыт.'));section.append(info);main.append(section);return}const cards=document.getElementById('cards');cards.replaceChildren();if(!properties.length)cards.append(el('p','Сейчас нет опубликованных объектов.','empty'));properties.forEach(p=>{const a=el('article',undefined,'card');if(p.photos?.length)a.append(photo(p.photos[0],p.name));const c=el('div',undefined,'card-content');c.append(el('h3',p.name),el('p',p.location||'Эйлат','location'),el('p',p.price||'Условия по запросу','price'),amenities());const link=el('a','Подробнее →','outline');link.href='?property='+encodeURIComponent(p.id);c.append(link);a.append(c);cards.append(a)})}catch(e){const target=document.getElementById('cards')||document.querySelector('main');target.replaceChildren(el('p',e.message,'empty'))}}
-document.getElementById('year').textContent=new Date().getFullYear();document.getElementById('menu').onclick=()=>{const n=document.getElementById('nav'),open=n.classList.toggle('open');document.getElementById('menu').setAttribute('aria-expanded',String(open))};document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('nav').classList.remove('open');document.getElementById('menu').setAttribute('aria-expanded','false')}));render();
+
+const cfg = window.BLAGO_CONFIG || {};
+const translations = window.BLAGO_I18N;
+const supportedLanguages = ['ru', 'en', 'he'];
+let currentLanguage = getInitialLanguage();
+let propertiesData = null;
+const t = key => translations[currentLanguage][key] ?? translations.ru[key] ?? key;
+const safeUrl = value => { try { const url = new URL(value, location.href); return ['https:', 'http:'].includes(url.protocol) ? url.href : ''; } catch { return ''; } };
+const el = (tag, text, className) => { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; if (className) node.className = className; return node; };
+
+function getInitialLanguage() {
+  const queryLanguage = new URLSearchParams(location.search).get('lang');
+  if (supportedLanguages.includes(queryLanguage)) return queryLanguage;
+  try { const saved = localStorage.getItem('blagoLanguage'); if (supportedLanguages.includes(saved)) return saved; } catch {}
+  const browserLanguage = (navigator.language || '').toLowerCase();
+  if (browserLanguage.startsWith('he')) return 'he';
+  if (browserLanguage.startsWith('en')) return 'en';
+  return 'ru';
+}
+
+function localizeProperty(property, field) {
+  return property.translations?.[currentLanguage]?.[field] || property[field] || '';
+}
+
+function applyLanguage() {
+  const dictionary = translations[currentLanguage];
+  document.documentElement.lang = currentLanguage;
+  document.documentElement.dir = currentLanguage === 'he' ? 'rtl' : 'ltr';
+  document.title = dictionary.pageTitle;
+  document.querySelector('meta[name="description"]').content = dictionary.metaDescription;
+  document.querySelectorAll('[data-i18n]').forEach(node => { const value = dictionary[node.dataset.i18n]; if (value !== undefined && !Array.isArray(value)) node.textContent = value; });
+  document.querySelectorAll('[data-i18n-html]').forEach(node => { const value = dictionary[node.dataset.i18nHtml]; if (value !== undefined) node.innerHTML = value; });
+  document.querySelectorAll('[data-i18n-aria]').forEach(node => { const value = dictionary[node.dataset.i18nAria]; if (value !== undefined) node.setAttribute('aria-label', value); });
+  document.querySelectorAll('[data-brand-link]').forEach(node => { node.href = '?lang=' + currentLanguage; node.setAttribute('aria-label', dictionary.brandHome); });
+  document.getElementById('menu').setAttribute('aria-label', dictionary.openMenu);
+  document.querySelectorAll('[data-lang]').forEach(button => { const active = button.dataset.lang === currentLanguage; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
+}
+
+function photo(photoData, name) {
+  const frame = el('div', undefined, 'photo' + (photoData.top === undefined ? ' regular' : ''));
+  if (photoData.top !== undefined) {
+    frame.style.setProperty('--top', photoData.top + '%');
+    frame.style.setProperty('--mobile-top', (photoData.mobileTop ?? photoData.top) + '%');
+  }
+  const image = el('img'); image.src = safeUrl(photoData.src); image.alt = name; image.loading = 'lazy'; frame.append(image); return frame;
+}
+
+function amenities() {
+  const list = el('div', undefined, 'amenities');
+  t('amenities').forEach(item => list.append(el('span', item)));
+  return list;
+}
+
+async function getProperties() {
+  if (propertiesData) return propertiesData;
+  if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
+    const response = await fetch(cfg.supabaseUrl + '/rest/v1/properties?visible=eq.true&order=sort_order.asc', { headers: { apikey: cfg.supabaseAnonKey, Authorization: 'Bearer ' + cfg.supabaseAnonKey } });
+    if (!response.ok) throw Error(t('loadError'));
+    propertiesData = await response.json();
+  } else {
+    const response = await fetch('data/properties.json');
+    if (!response.ok) throw Error(t('catalogError'));
+    propertiesData = await response.json();
+  }
+  return propertiesData;
+}
+
+function detailUrl(id) { return '?property=' + encodeURIComponent(id) + '&lang=' + currentLanguage; }
+
+async function render() {
+  try {
+    const properties = (await getProperties()).filter(property => property.visible);
+    const id = new URLSearchParams(location.search).get('property');
+    if (id) return renderDetail(properties, id);
+    const cards = document.getElementById('cards');
+    cards.replaceChildren();
+    if (!properties.length) cards.append(el('p', t('empty'), 'empty'));
+    properties.forEach(property => {
+      const card = el('article', undefined, 'card');
+      const name = localizeProperty(property, 'name') || property.name;
+      if (property.photos?.length) card.append(photo(property.photos[0], name));
+      const content = el('div', undefined, 'card-content');
+      content.append(el('h3', name), el('p', localizeProperty(property, 'location') || t('eilatIsrael').split(',')[0], 'location'), el('p', localizeProperty(property, 'price') || t('conditions'), 'price'), amenities());
+      const link = el('a', t('details'), 'outline'); link.href = detailUrl(property.id); content.append(link); card.append(content); cards.append(card);
+    });
+  } catch (error) {
+    const target = document.getElementById('cards') || document.querySelector('main');
+    target.replaceChildren(el('p', error.message, 'empty'));
+  }
+}
+
+function renderDetail(properties, id) {
+  const property = properties.find(item => item.id === id);
+  const main = document.querySelector('main'); main.replaceChildren();
+  const section = el('section', undefined, 'detail wrap');
+  const back = el('a', t('back'), 'back'); back.href = '?lang=' + currentLanguage + '#properties'; section.append(back);
+  if (!property) { section.append(el('h1', t('notFound')), el('p', t('notFoundText'))); main.append(section); return; }
+  const name = localizeProperty(property, 'name') || property.name;
+  document.title = name + ' — BLAGO home';
+  section.append(el('div', t('detailEyebrow'), 'eyebrow'), el('h1', name));
+  const gallery = el('div', undefined, 'gallery'); (property.photos || []).forEach(item => gallery.append(photo(item, name))); section.append(gallery, amenities());
+  const info = el('div', undefined, 'detail-info'); info.append(el('h2', t('about')), el('p', localizeProperty(property, 'description')), el('h3', localizeProperty(property, 'price') || t('conditions')), el('p', t('demoDetail'))); section.append(info); main.append(section);
+}
+
+async function setLanguage(language) {
+  if (!supportedLanguages.includes(language)) return;
+  currentLanguage = language;
+  try { localStorage.setItem('blagoLanguage', language); } catch {}
+  const url = new URL(location.href); url.searchParams.set('lang', language); history.replaceState({}, '', url);
+  applyLanguage();
+  await render();
+}
+
+document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById('menu').onclick = () => { const nav = document.getElementById('nav'); const open = nav.classList.toggle('open'); document.getElementById('menu').setAttribute('aria-expanded', String(open)); };
+document.querySelectorAll('nav a').forEach(link => link.addEventListener('click', () => { document.getElementById('nav').classList.remove('open'); document.getElementById('menu').setAttribute('aria-expanded', 'false'); }));
+document.querySelectorAll('[data-lang]').forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
+applyLanguage();
+render();

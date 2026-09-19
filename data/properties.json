@@ -5,6 +5,10 @@
     "location": "Эйлат",
     "description": "Квартира с отдельным входом и собственным двором. Оборудованная кухня, посуда, стиральная машина и интернет. Условия размещения и количество спальных мест уточняются перед заселением.",
     "price": "Условия по запросу",
+    "translations": {
+      "en": {"name": "BLAGO home LA 1", "location": "Eilat", "description": "An apartment with a private entrance and yard. Equipped kitchen, tableware, washing machine and internet. Accommodation terms and sleeping capacity are confirmed before move-in.", "price": "Terms on request"},
+      "he": {"name": "BLAGO home LA 1", "location": "אילת", "description": "דירה עם כניסה נפרדת וחצר פרטית. מטבח מאובזר, כלי אוכל, מכונת כביסה ואינטרנט. תנאי האירוח ומספר מקומות הלינה ייקבעו לפני הכניסה.", "price": "תנאים לפי בקשה"}
+    },
     "visible": true,
     "sort_order": 1,
     "photos": [
@@ -26,6 +30,10 @@
     "location": "Эйлат",
     "description": "Квартира с отдельным входом и собственным двором. Есть кухня, посуда, стиральная машина и интернет. Возможность размещения команды обсуждается с учётом срока и состава группы.",
     "price": "Условия по запросу",
+    "translations": {
+      "en": {"name": "BLAGO home LA 2", "location": "Eilat", "description": "An apartment with a private entrance and yard. Kitchen, tableware, washing machine and internet are included. Housing for a team is arranged according to the length of stay and group size.", "price": "Terms on request"},
+      "he": {"name": "BLAGO home LA 2", "location": "אילת", "description": "דירה עם כניסה נפרדת וחצר פרטית. יש מטבח, כלי אוכל, מכונת כביסה ואינטרנט. המגורים לצוות מותאמים למשך השהייה ולגודל הקבוצה.", "price": "תנאים לפי בקשה"}
+    },
     "visible": true,
     "sort_order": 2,
     "photos": [
@@ -47,6 +55,10 @@
     "location": "Эйлат",
     "description": "Квартира для проживания в Эйлате. Отдельный вход, свой двор, кухня с посудой, стиральная машина и интернет. Стоимость и вместимость согласовываются индивидуально.",
     "price": "Условия по запросу",
+    "translations": {
+      "en": {"name": "BLAGO home LA 3", "location": "Eilat", "description": "An apartment for stays in Eilat, with a private entrance and yard, a kitchen with tableware, a washing machine and internet. Price and capacity are agreed individually.", "price": "Terms on request"},
+      "he": {"name": "BLAGO home LA 3", "location": "אילת", "description": "דירה למגורים באילת עם כניסה נפרדת וחצר פרטית, מטבח וכלי אוכל, מכונת כביסה ואינטרנט. המחיר והקיבולת נקבעים באופן אישי.", "price": "תנאים לפי בקשה"}
+    },
     "visible": true,
     "sort_order": 3,
     "photos": [
@@ -63,6 +75,10 @@
     "location": "Эйлат",
     "description": "Квартира с отдельным входом и двором. Предусмотрены кухня, посуда, стиральная машина и интернет. Доступность и условия долгосрочного проживания уточняются для вашей команды.",
     "price": "Условия по запросу",
+    "translations": {
+      "en": {"name": "BLAGO home LA 4", "location": "Eilat", "description": "An apartment with a private entrance and yard, a kitchen, tableware, washing machine and internet. Availability and long-term accommodation terms are confirmed for each team.", "price": "Terms on request"},
+      "he": {"name": "BLAGO home LA 4", "location": "אילת", "description": "דירה עם כניסה נפרדת וחצר, מטבח, כלי אוכל, מכונת כביסה ואינטרנט. הזמינות ותנאי המגורים לטווח ארוך נקבעים עבור כל צוות.", "price": "תנאים לפי בקשה"}
+    },
     "visible": true,
     "sort_order": 4,
     "photos": [
