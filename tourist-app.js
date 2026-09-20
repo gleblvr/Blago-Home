@@ -50,6 +50,33 @@ function photo(photoData, name) {
   return frame;
 }
 
+function playLabel() {
+  return {he: 'הפעלת וידאו', en: 'Play video', ru: 'Воспроизвести видео'}[currentLanguage];
+}
+
+function videoPreview(videoData, name, posterPhoto) {
+  const frame = posterPhoto ? photo(posterPhoto, name) : el('div', undefined, 'tour-photo regular');
+  const url = safeUrl(videoData?.url);
+  if (!url) return frame;
+  const play = el('button', '▶', 'media-play');
+  play.type = 'button';
+  play.setAttribute('aria-label', playLabel());
+  play.onclick = () => {
+    const video = el('video');
+    video.src = url;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.setAttribute('aria-label', name);
+    frame.classList.add('playing');
+    frame.replaceChildren(video);
+    video.play().catch(() => {});
+  };
+  frame.append(play);
+  return frame;
+}
+
 async function getProperties() {
   if (propertiesData) return propertiesData;
   if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
@@ -77,7 +104,8 @@ async function render() {
     properties.forEach(property => {
       const name = localizeProperty(property, 'name') || property.name;
       const card = el('article', undefined, 'tour-card');
-      if (property.photos?.length) card.append(photo(property.photos[0], name));
+      if (property.video) card.append(videoPreview(property.video, name, property.photos?.[0]));
+      else if (property.photos?.length) card.append(photo(property.photos[0], name));
       const content = el('div', undefined, 'tour-card-content');
       content.append(el('h3', name), el('p', localizeProperty(property, 'location') || t('eilatIsrael'), 'tour-location'), el('p', t('priceRequest'), 'tour-price'));
       const link = el('a', t('details'), 'tour-card-link'); link.href = detailUrl(property.id);
@@ -98,7 +126,10 @@ function renderDetail(properties, id) {
   const name = localizeProperty(property, 'name') || property.name;
   document.title = name + ' — BLAGO home';
   section.append(el('div', t('detailEyebrow'), 'tour-kicker'), el('h1', name));
-  const gallery = el('div', undefined, 'tour-gallery'); (property.photos || []).forEach(item => gallery.append(photo(item, name))); section.append(gallery);
+  const gallery = el('div', undefined, 'tour-gallery');
+  (property.photos || []).forEach(item => gallery.append(photo(item, name)));
+  if (property.video) gallery.append(videoPreview(property.video, name, property.photos?.[0]));
+  section.append(gallery);
   const info = el('div', undefined, 'tour-detail-copy'); info.append(el('h2', t('about')), el('p', localizeProperty(property, 'description')), el('h3', t('priceRequest')), el('p', t('demoDetail')));
   const action = el('a', t('chooseDates'), 'tour-primary'); action.href = '#'; action.setAttribute('aria-disabled', 'true'); info.append(action); section.append(info); main.append(section);
 }
