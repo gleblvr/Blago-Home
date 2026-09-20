@@ -6,3 +6,5 @@
 .header-cta{width:190px;flex:0 0 190px}
 @media(max-width:650px){.language-switcher{order:2;margin-left:auto;flex-basis:104px;width:104px}.menu{order:3;margin-left:0}.header nav{order:4}.header{gap:9px}.brand-mark{width:36px;height:36px}.brand{font-size:21px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+.video-admin-row{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:18px;align-items:start;margin:12px 0}.video-admin-row video{display:block;width:100%;max-height:240px;border-radius:6px;background:#061725}.video-admin-row .small-btn{margin-top:12px}@media(max-width:650px){.video-admin-row{grid-template-columns:1fr}}
+.photo .media-play{position:absolute;inset:50% auto auto 50%;z-index:2;transform:translate(-50%,-50%);display:grid;place-items:center;width:54px;height:54px;padding:0 0 0 4px;border:2px solid #fff;border-radius:50%;background:rgba(6,34,61,.84);color:#fff;font-size:23px;box-shadow:0 5px 20px rgba(0,0,0,.26)}.photo .media-play:hover{background:var(--blue)}.photo.playing{background:#061725}.photo.playing video{display:block;width:100%;height:100%;object-fit:contain;background:#061725}
