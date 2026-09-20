@@ -6,6 +6,10 @@ let token = '';
 let rows = [];
 let editing = null;
 let photos = [];
+let propertyVideo = null;
+let pendingVideo = null;
+let videoRemoved = false;
+let videoPreviewUrl = '';
 let siteAssets = [];
 let busy = false;
 
@@ -68,7 +72,15 @@ async function uploadFile(bucket, path, file) {
     },
     body: file
   });
-  if (!response.ok) throw new Error('Не удалось загрузить изображение. Проверьте доступ к хранилищу.');
+  if (!response.ok) throw new Error('Не удалось загрузить файл. Проверьте доступ к хранилищу.');
+}
+
+async function deleteStorageFiles(bucket, paths) {
+  if (!paths.length) return;
+  await request(`/storage/v1/object/${bucket}`, {
+    method: 'DELETE',
+    body: {prefixes: paths}
+  });
 }
 
 function imageExtension(file) {
@@ -83,7 +95,7 @@ function imageExtension(file) {
 
 async function refresh() {
   const [propertyRows, assetRows] = await Promise.all([
-    request('/rest/v1/properties?select=*,property_photos(*)&order=sort_order.asc&property_photos.order=display_order.asc'),
+    request('/rest/v1/properties?select=*,property_photos(*),property_videos(*)&order=sort_order.asc&property_photos.order=display_order.asc'),
     request('/rest/v1/site_assets?select=*&order=asset_key.asc')
   ]);
   rows = propertyRows;
@@ -215,17 +227,70 @@ function renderPhotos() {
   });
 }
 
+function clearVideoPreviewUrl() {
+  if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+  videoPreviewUrl = '';
+}
+
+function formatMegabytes(bytes) {
+  return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+}
+
+function renderPropertyVideo() {
+  const container = $('#property-video');
+  container.replaceChildren();
+  clearVideoPreviewUrl();
+  const activeVideo = pendingVideo || (!videoRemoved ? propertyVideo : null);
+  if (!activeVideo) {
+    container.append(node('p', 'Видео не добавлено.', 'muted'));
+    return;
+  }
+
+  const row = node('div', undefined, 'video-admin-row');
+  const preview = document.createElement('video');
+  preview.controls = true;
+  preview.preload = 'metadata';
+  preview.playsInline = true;
+  if (pendingVideo) {
+    videoPreviewUrl = URL.createObjectURL(pendingVideo.file);
+    preview.src = videoPreviewUrl;
+  } else {
+    preview.src = propertyVideo.public_url;
+  }
+  const details = node('div');
+  const size = activeVideo.file?.size ?? activeVideo.size_bytes;
+  const duration = activeVideo.durationSeconds ?? activeVideo.duration_seconds;
+  details.append(
+    node('strong', pendingVideo ? 'Сжатое видео готово' : 'Текущее видео'),
+    node('div', `${formatMegabytes(size)} · ${Math.round(duration || 0)} сек.`, 'muted')
+  );
+  details.append(button('Убрать видео', () => {
+    pendingVideo = null;
+    videoRemoved = true;
+    $('#video-upload').value = '';
+    renderPropertyVideo();
+  }, 'small-btn danger'));
+  row.append(preview, details);
+  container.append(row);
+}
+
 function edit(property) {
   editing = property.id;
   photos = structuredClone(property.property_photos || []);
+  const videoRelation = property.property_videos;
+  propertyVideo = structuredClone((Array.isArray(videoRelation) ? videoRelation[0] : videoRelation) || null);
+  pendingVideo = null;
+  videoRemoved = false;
   const form = $('#editor');
   ['name', 'location', 'description', 'sort_order'].forEach(key => {
     form.elements[key].value = property[key] ?? '';
   });
   form.elements.visible.checked = !property.archived_at;
   $('#upload').value = '';
+  $('#video-upload').value = '';
   $('#editor-title').textContent = rows.some(row => row.id === editing) ? 'Редактировать объект' : 'Новый объект';
   renderPhotos();
+  renderPropertyVideo();
   form.hidden = false;
   form.scrollIntoView({behavior: 'smooth'});
 }
@@ -262,6 +327,10 @@ $('#logout').onclick = async () => {
   token = '';
   rows = [];
   photos = [];
+  propertyVideo = null;
+  pendingVideo = null;
+  videoRemoved = false;
+  clearVideoPreviewUrl();
   siteAssets = [];
   $('#editor').reset();
   $('#list').replaceChildren();
@@ -282,13 +351,18 @@ $('#add').onclick = () => {
     description: '',
     archived_at: new Date().toISOString(),
     sort_order: rows.length + 1,
-    property_photos: []
+    property_photos: [],
+    property_videos: []
   });
 };
 
 $('#cancel').onclick = () => {
   $('#editor').hidden = true;
   photos = [];
+  propertyVideo = null;
+  pendingVideo = null;
+  videoRemoved = false;
+  clearVideoPreviewUrl();
 };
 
 $('#upload').onchange = async event => {
@@ -321,6 +395,31 @@ $('#upload').onchange = async event => {
     busy = false;
     submit.disabled = false;
     event.target.value = '';
+  }
+};
+
+$('#video-upload').onchange = async event => {
+  const file = event.target.files[0];
+  if (!file || !token || busy) return;
+  busy = true;
+  const submit = $('#editor button[type=submit]');
+  submit.disabled = true;
+  videoRemoved = false;
+  status('Подготавливаем видео к сжатию…');
+  try {
+    pendingVideo = await window.BLAGO_VIDEO.compress(file, progress => {
+      status(`Сжимаем видео: ${progress}% — не закрывайте вкладку.`);
+    });
+    renderPropertyVideo();
+    status(`Видео сжато до ${formatMegabytes(pendingVideo.file.size)}. Нажмите «Сохранить», чтобы загрузить его.`);
+  } catch (error) {
+    pendingVideo = null;
+    event.target.value = '';
+    renderPropertyVideo();
+    status(error.message, true);
+  } finally {
+    busy = false;
+    submit.disabled = false;
   }
 };
 
@@ -362,8 +461,43 @@ $('#editor').onsubmit = async event => {
         }))
       });
     }
+    const oldVideoPath = propertyVideo?.storage_path || '';
+    if (pendingVideo) {
+      const extension = pendingVideo.file.type === 'video/mp4' ? 'mp4' : 'webm';
+      const path = `properties/${editing}/${crypto.randomUUID()}.${extension}`;
+      status('Загружаем сжатое видео…');
+      await uploadFile('property-videos', path, pendingVideo.file);
+      try {
+        await request('/rest/v1/property_videos?on_conflict=property_id', {
+          method: 'POST',
+          body: {
+            property_id: editing,
+            storage_path: path,
+            public_url: publicStorageUrl('property-videos', path),
+            mime_type: pendingVideo.file.type,
+            size_bytes: pendingVideo.file.size,
+            duration_seconds: pendingVideo.durationSeconds,
+            updated_at: new Date().toISOString()
+          },
+          headers: {Prefer: 'resolution=merge-duplicates'}
+        });
+      } catch (error) {
+        await deleteStorageFiles('property-videos', [path]).catch(() => {});
+        throw error;
+      }
+      if (oldVideoPath && oldVideoPath !== path) {
+        await deleteStorageFiles('property-videos', [oldVideoPath]).catch(() => {});
+      }
+    } else if (videoRemoved && propertyVideo) {
+      await request(`/rest/v1/property_videos?property_id=eq.${encodeURIComponent(editing)}`, {method: 'DELETE'});
+      if (oldVideoPath) await deleteStorageFiles('property-videos', [oldVideoPath]).catch(() => {});
+    }
     await refresh();
     form.hidden = true;
+    propertyVideo = null;
+    pendingVideo = null;
+    videoRemoved = false;
+    clearVideoPreviewUrl();
     status('Сохранено. Изменения доступны во всех версиях сайта.');
   } catch (error) {
     status(error.message, true);
