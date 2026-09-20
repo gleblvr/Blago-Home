@@ -47,6 +47,7 @@ async function request(path, {method = 'GET', body, headers = {}} = {}) {
     headers: requestHeaders,
     body: body === undefined ? undefined : body instanceof Blob ? body : JSON.stringify(body)
   });
+  const responseText = await response.text();
   if (!response.ok) {
     if (response.status === 401) {
       token = '';
@@ -55,10 +56,14 @@ async function request(path, {method = 'GET', body, headers = {}} = {}) {
       $('#login').hidden = false;
       throw new Error('Войдите снова: срок действия сеанса истёк.');
     }
-    throw new Error('Не удалось выполнить действие. Проверьте соединение и права доступа.');
+    let details = {};
+    try { details = responseText ? JSON.parse(responseText) : {}; } catch {}
+    const error = new Error(details.message || 'Не удалось выполнить действие. Проверьте соединение и права доступа.');
+    error.code = details.code || '';
+    error.details = details.details || '';
+    throw error;
   }
-  const text = await response.text();
-  return text ? JSON.parse(text) : null;
+  return responseText ? JSON.parse(responseText) : null;
 }
 
 async function uploadFile(bucket, path, file) {
@@ -102,6 +107,7 @@ async function refresh() {
   siteAssets = assetRows;
   renderProperties();
   renderSiteAssets();
+  window.BLAGO_CALENDAR?.setProperties(rows);
 }
 
 function renderProperties() {
@@ -114,6 +120,7 @@ function renderProperties() {
     const archived = Boolean(property.archived_at);
     name.append(node('strong', property.name), node('div', archived ? 'В архиве' : 'Опубликован', 'muted'));
     const actions = node('div', undefined, 'actions');
+    actions.append(button('Календарь', () => window.BLAGO_CALENDAR?.selectOnly(property.id)));
     actions.append(button('Изменить', () => edit(property)));
     if (archived) {
       actions.append(button('Восстановить', () => setArchived(property, false)));
@@ -335,6 +342,7 @@ $('#logout').onclick = async () => {
   $('#editor').reset();
   $('#list').replaceChildren();
   $('#site-assets').replaceChildren();
+  window.BLAGO_CALENDAR?.reset();
   $('#dashboard').hidden = true;
   $('#editor').hidden = true;
   $('#login').hidden = false;
@@ -513,3 +521,5 @@ if (configured) {
   $('#setup').hidden = false;
   status('Настройка хранения данных ещё не завершена.');
 }
+
+window.BLAGO_ADMIN_API = {request, status};
