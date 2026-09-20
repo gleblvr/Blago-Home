@@ -23,6 +23,7 @@ All images are stored in Supabase Storage and listed in the `image_links` databa
 
 - `site_assets` contains the single shared logo, favicon, and Eilat background.
 - `property_photos` contains property images and their display order/crop positions.
+- `property_videos` contains one optional compressed video per property. The admin reduces videos to 720p before uploading them to the size-limited `property-videos` bucket.
 - Both tourist and corporate versions load `brand_logo` from the same database row.
 - Replacing a shared asset in the admin updates its database URL and changes it everywhere without a code edit.
 
