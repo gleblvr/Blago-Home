@@ -6,12 +6,13 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Управление — BLAGO home</title>
   <link rel="icon" data-site-asset-href="brand_favicon">
-  <link rel="stylesheet" href="../styles.css?v=6">
+  <link rel="stylesheet" href="../styles.css?v=7">
   <link rel="stylesheet" href="../asset-overrides.css">
   <script src="../config.js" defer></script>
   <script src="../site-assets.js" defer></script>
   <script src="video-compressor.js?v=1" defer></script>
-  <script src="admin.js?v=2" defer></script>
+  <script src="admin.js?v=3" defer></script>
+  <script src="calendar.js?v=1" defer></script>
 </head>
 <body>
   <header>
@@ -44,6 +45,45 @@
         <div id="site-assets"></div>
       </section>
       <div id="list"></div>
+      <section class="panel calendar-panel" id="calendar-panel">
+        <div class="calendar-heading">
+          <div><h2>Календарь загрузки</h2><p class="muted">Выберите одну или несколько квартир. ↘ — заезд, ■ — проживание, ↗ — выезд.</p></div>
+          <div class="actions"><button type="button" id="calendar-select-all" class="small-btn">Выбрать все</button><button type="button" id="calendar-select-none" class="small-btn">Снять выбор</button></div>
+        </div>
+        <div id="calendar-property-filters" class="calendar-filters"></div>
+        <div class="calendar-toolbar">
+          <button type="button" id="calendar-prev" class="small-btn" aria-label="Предыдущий месяц">←</button>
+          <button type="button" id="calendar-today" class="small-btn">Сегодня</button>
+          <strong id="calendar-month-title"></strong>
+          <button type="button" id="calendar-next" class="small-btn" aria-label="Следующий месяц">→</button>
+        </div>
+        <div id="calendar-legend" class="calendar-legend"></div>
+        <div class="calendar-scroll"><div id="calendar-grid" class="calendar-grid"></div></div>
+        <div class="calendar-forms">
+          <form id="booking-form" class="calendar-form">
+            <h3>Добавить бронирование</h3>
+            <label>Квартира<select id="booking-property" name="property_id" required></select></label>
+            <label>Название бронирования<input id="booking-name" name="booking_name" maxlength="200" required placeholder="Компания или имя гостя"></label>
+            <div class="calendar-date-fields">
+              <label>Заезд<input id="booking-check-in" name="check_in" type="date" required></label>
+              <label>Выезд<input id="booking-check-out" name="check_out" type="date" required></label>
+            </div>
+            <button type="submit" class="button">Добавить</button>
+          </form>
+          <form id="price-form" class="calendar-form">
+            <h3>Цена по датам</h3>
+            <label>Квартира<select id="price-property" name="property_id" required></select></label>
+            <div class="calendar-date-fields">
+              <label>С даты<input name="date_from" type="date" required></label>
+              <label>По дату включительно<input name="date_to" type="date" required></label>
+            </div>
+            <label>Цена за сутки, ₪<input name="price_ils" type="number" min="0" step="1" required></label>
+            <div class="actions"><button type="submit" class="button">Сохранить цену</button><button type="button" id="price-clear" class="small-btn">Очистить цену</button></div>
+          </form>
+        </div>
+        <h3>Бронирования выбранного месяца</h3>
+        <div id="calendar-booking-list"></div>
+      </section>
     </section>
     <form id="editor" class="panel" hidden>
       <h2 id="editor-title">Редактировать объект</h2>
