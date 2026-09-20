@@ -1,1 +1,62 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Управление — BLAGO home</title><link rel="stylesheet" href="../styles.css"><script src="../config.js" defer></script><script src="admin.js" defer></script></head><body><header><div class="wrap header"><a class="brand" href="../">BLAGO <b>home</b></a><a class="back" style="margin:0 0 0 auto" href="../">← На сайт</a></div></header><main class="wrap admin-main"><div class="eyebrow">УПРАВЛЕНИЕ САЙТОМ</div><h1>Ваши объекты</h1><p id="status" class="status" role="status"></p><section id="setup" class="panel" hidden><h2>Админка ещё не подключена</h2><p>Вход и сохранение изменений станут доступны после подключения защищённого хранилища. До этого сайт показывает подготовленный каталог.</p><p>Здесь можно будет добавлять и скрывать объекты, редактировать описания, загружать фотографии и менять их порядок.</p></section><form id="login" class="panel" hidden><h2>Вход владельца</h2><label>Электронная почта<input name="email" type="email" autocomplete="username" required></label><label>Пароль<input name="password" type="password" autocomplete="current-password" required></label><div class="actions"><button class="button" type="submit">Войти</button></div></form><section id="dashboard" hidden><div class="actions"><button class="button" id="add">Добавить объект</button><button class="small-btn" id="logout">Выйти</button></div><div id="list"></div></section><form id="editor" class="panel" hidden><h2 id="editor-title">Редактировать объект</h2><label>Название<input name="name" required maxlength="150"></label><label>Расположение<input name="location" required maxlength="200"></label><label>Описание<textarea name="description" rows="5" required maxlength="5000"></textarea></label><label>Стоимость или условия<input name="price" maxlength="200" placeholder="Условия по запросу"></label><label>Порядок в каталоге<input name="sort_order" type="number" min="0" step="1" required></label><label><input name="visible" type="checkbox">Показывать на сайте</label><h3 style="margin-top:24px">Фотографии</h3><p class="muted">Первая фотография — обложка объекта.</p><div id="photos"></div><label>Добавить фотографии<input id="upload" type="file" accept="image/jpeg,image/png,image/webp" multiple></label><div class="actions"><button type="submit" class="button">Сохранить</button><button type="button" id="cancel" class="small-btn">Отмена</button></div></form></main></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Управление — BLAGO home</title>
+  <link rel="icon" data-site-asset-href="brand_favicon">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../asset-overrides.css">
+  <script src="../config.js" defer></script>
+  <script src="../site-assets.js" defer></script>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="wrap header">
+      <a class="brand" href="../">
+        <span class="brand-lockup"><img class="brand-logo" data-site-asset="brand_logo" alt="BLAGO home"></span>
+      </a>
+      <a class="back" style="margin:0 0 0 auto" href="../">← На сайт</a>
+    </div>
+  </header>
+  <main class="wrap admin-main">
+    <div class="eyebrow">УПРАВЛЕНИЕ САЙТОМ</div>
+    <h1>Ваши объекты</h1>
+    <p id="status" class="status" role="status"></p>
+    <section id="setup" class="panel" hidden>
+      <h2>Админка ещё не подключена</h2>
+      <p>Вход и сохранение изменений станут доступны после подключения защищённого хранилища.</p>
+    </section>
+    <form id="login" class="panel" hidden>
+      <h2>Вход владельца</h2>
+      <label>Электронная почта<input name="email" type="email" autocomplete="username" required></label>
+      <label>Пароль<input name="password" type="password" autocomplete="current-password" required></label>
+      <div class="actions"><button class="button" type="submit">Войти</button></div>
+    </form>
+    <section id="dashboard" hidden>
+      <div class="actions"><button class="button" id="add">Добавить объект</button><button class="small-btn" id="logout">Выйти</button></div>
+      <section class="panel">
+        <h2>Общие изображения сайта</h2>
+        <p class="muted">Логотип и фон используются одновременно туристической и корпоративной версиями. Замена здесь меняет их везде.</p>
+        <div id="site-assets"></div>
+      </section>
+      <div id="list"></div>
+    </section>
+    <form id="editor" class="panel" hidden>
+      <h2 id="editor-title">Редактировать объект</h2>
+      <label>Название<input name="name" required maxlength="150"></label>
+      <label>Расположение<input name="location" required maxlength="200"></label>
+      <label>Описание<textarea name="description" rows="5" required maxlength="5000"></textarea></label>
+      <label>Порядок в каталоге<input name="sort_order" type="number" min="0" step="1" required></label>
+      <label><input name="visible" type="checkbox">Показывать на сайте</label>
+      <h3 style="margin-top:24px">Фотографии</h3>
+      <p class="muted">Первая фотография — обложка объекта.</p>
+      <div id="photos"></div>
+      <label>Добавить фотографии<input id="upload" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <div class="actions"><button type="submit" class="button">Сохранить</button><button type="button" id="cancel" class="small-btn">Отмена</button></div>
+    </form>
+  </main>
+</body>
+</html>
