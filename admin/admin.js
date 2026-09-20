@@ -1,16 +1,381 @@
 'use strict';
-const cfg=window.BLAGO_CONFIG||{},$=s=>document.querySelector(s);let token='',rows=[],editing=null,photos=[],busy=false;
-const configured=cfg.supabaseUrl&&cfg.supabaseAnonKey;
-function status(t,error=false){$('#status').textContent=t;$('#status').classList.toggle('error',error)}
-function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
-async function request(path,{method='GET',body,headers={}}={}){const r=await fetch(cfg.supabaseUrl+path,{method,headers:{apikey:cfg.supabaseAnonKey,Authorization:'Bearer '+(token||cfg.supabaseAnonKey),'Content-Type':'application/json',...headers},body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok){if(r.status===401){token='';$('#dashboard').hidden=true;$('#editor').hidden=true;$('#login').hidden=false;throw Error('Войдите снова: срок действия сеанса истёк.')}throw Error('Не удалось выполнить действие. Проверьте соединение и права доступа.')}const t=await r.text();return t?JSON.parse(t):null}
-function button(text,fn){const b=node('button',text,'small-btn');b.type='button';b.onclick=fn;return b}
-async function refresh(){rows=await request('/rest/v1/properties?order=sort_order.asc');const l=$('#list');l.replaceChildren();if(!rows.length)l.append(node('p','Пока нет объектов. Добавьте первый.'));rows.forEach(p=>{const r=node('div',undefined,'admin-row'),name=node('div');name.append(node('strong',p.name),node('div',p.visible?'Опубликован':'Скрыт','muted'));const actions=node('div',undefined,'actions');actions.append(button('Изменить',()=>edit(p)),button('Удалить',async()=>{if(!confirm('Удалить объект «'+p.name+'»?'))return;try{await request('/rest/v1/properties?id=eq.'+encodeURIComponent(p.id),{method:'DELETE'});await refresh();status('Объект удалён.')}catch(e){status(e.message,true)}}));r.append(name,actions);l.append(r)})}
-function renderPhotos(){const box=$('#photos');box.replaceChildren();photos.forEach((p,i)=>{const r=node('div',undefined,'image-row'),im=node('img');im.src=p.src.startsWith('assets/')?'../'+p.src:p.src;im.alt='Фото '+(i+1);r.append(im,node('span',i===0?'Обложка':'Фото '+(i+1)));if(i>0)r.append(button('Выше',()=>{[photos[i-1],photos[i]]=[photos[i],photos[i-1]];renderPhotos()}));if(i<photos.length-1)r.append(button('Ниже',()=>{[photos[i],photos[i+1]]=[photos[i+1],photos[i]];renderPhotos()}));r.append(button('Убрать',()=>{photos.splice(i,1);renderPhotos()}));box.append(r)})}
-function edit(p){editing=p.id;photos=structuredClone(p.photos||[]);const f=$('#editor');['name','location','description','price','sort_order'].forEach(k=>f.elements[k].value=p[k]??'');f.elements.visible.checked=p.visible;$('#upload').value='';$('#editor-title').textContent=rows.some(r=>r.id===editing)?'Редактировать объект':'Новый объект';renderPhotos();f.hidden=false;f.scrollIntoView({behavior:'smooth'})}
-$('#login').onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;try{const data=await request('/auth/v1/token?grant_type=password',{method:'POST',body:{email:e.target.elements.email.value,password:e.target.elements.password.value}});token=data.access_token;e.target.elements.password.value='';await refresh();$('#login').hidden=true;$('#dashboard').hidden=false;status('Вы вошли. Изменения после сохранения появятся на сайте.')}catch(err){status(err.message,true)}finally{b.disabled=false}};
-$('#logout').onclick=async()=>{try{await request('/auth/v1/logout',{method:'POST'})}catch{}token='';rows=[];photos=[];$('#editor').reset();$('#list').replaceChildren();$('#dashboard').hidden=true;$('#editor').hidden=true;$('#login').hidden=false;status('Вы вышли.')};
-$('#add').onclick=()=>edit({id:crypto.randomUUID(),name:'',location:'Эйлат',description:'',price:'Условия по запросу',visible:false,sort_order:rows.length+1,photos:[]});$('#cancel').onclick=()=>{$('#editor').hidden=true;photos=[]};
-$('#upload').onchange=async e=>{if(!token||busy)return;busy=true;const submit=$('#editor button[type=submit]');submit.disabled=true;status('Загружаем фотографии…');try{for(const file of e.target.files){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Разрешены JPG, PNG и WebP, до 5 МБ на фотографию.');const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type],path=editing+'/'+crypto.randomUUID()+'.'+ext;const r=await fetch(cfg.supabaseUrl+'/storage/v1/object/property-photos/'+path,{method:'POST',headers:{apikey:cfg.supabaseAnonKey,Authorization:'Bearer '+token,'Content-Type':file.type},body:file});if(!r.ok)throw Error('Не удалось загрузить фото. Проверьте доступ к хранилищу.');photos.push({src:cfg.supabaseUrl+'/storage/v1/object/public/property-photos/'+path});renderPhotos()}status('Фотографии загружены. Нажмите «Сохранить», чтобы добавить их к объекту.')}catch(err){status(err.message,true)}finally{busy=false;submit.disabled=false;e.target.value=''}};
-$('#editor').onsubmit=async e=>{e.preventDefault();if(busy)return;const f=e.target,b=e.submitter;b.disabled=true;try{if(f.elements.visible.checked&&!photos.length)throw Error('Добавьте хотя бы одну фотографию перед публикацией.');const p={id:editing,photos,visible:f.elements.visible.checked,sort_order:Number(f.elements.sort_order.value)};for(const k of ['name','location','description','price'])p[k]=f.elements[k].value.trim();await request('/rest/v1/properties?on_conflict=id',{method:'POST',body:p,headers:{Prefer:'resolution=merge-duplicates'}});await refresh();f.hidden=true;status('Сохранено. Изменения доступны на сайте.')}catch(err){status(err.message,true)}finally{b.disabled=false}};
-if(configured){$('#login').hidden=false;status('Вход доступен только владельцу.')}else{$('#setup').hidden=false;status('Настройка хранения данных ещё не завершена.')}
+
+const cfg = window.BLAGO_CONFIG || {};
+const $ = selector => document.querySelector(selector);
+let token = '';
+let rows = [];
+let editing = null;
+let photos = [];
+let siteAssets = [];
+let busy = false;
+
+const configured = cfg.supabaseUrl && cfg.supabaseAnonKey;
+const publicStorageUrl = (bucket, path) => `${cfg.supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
+
+function status(text, error = false) {
+  $('#status').textContent = text;
+  $('#status').classList.toggle('error', error);
+}
+
+function node(tag, text, className) {
+  const element = document.createElement(tag);
+  if (text !== undefined) element.textContent = text;
+  if (className) element.className = className;
+  return element;
+}
+
+function button(text, handler, className = 'small-btn') {
+  const element = node('button', text, className);
+  element.type = 'button';
+  element.onclick = handler;
+  return element;
+}
+
+async function request(path, {method = 'GET', body, headers = {}} = {}) {
+  const requestHeaders = {
+    apikey: cfg.supabaseAnonKey,
+    ...(token ? {Authorization: `Bearer ${token}`} : {}),
+    ...headers
+  };
+  if (body !== undefined && !(body instanceof Blob)) requestHeaders['Content-Type'] = 'application/json';
+  const response = await fetch(cfg.supabaseUrl + path, {
+    method,
+    headers: requestHeaders,
+    body: body === undefined ? undefined : body instanceof Blob ? body : JSON.stringify(body)
+  });
+  if (!response.ok) {
+    if (response.status === 401) {
+      token = '';
+      $('#dashboard').hidden = true;
+      $('#editor').hidden = true;
+      $('#login').hidden = false;
+      throw new Error('Войдите снова: срок действия сеанса истёк.');
+    }
+    throw new Error('Не удалось выполнить действие. Проверьте соединение и права доступа.');
+  }
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function uploadFile(bucket, path, file) {
+  const response = await fetch(`${cfg.supabaseUrl}/storage/v1/object/${bucket}/${path}`, {
+    method: 'POST',
+    headers: {
+      apikey: cfg.supabaseAnonKey,
+      Authorization: `Bearer ${token}`,
+      'Content-Type': file.type,
+      'x-upsert': 'false'
+    },
+    body: file
+  });
+  if (!response.ok) throw new Error('Не удалось загрузить изображение. Проверьте доступ к хранилищу.');
+}
+
+function imageExtension(file) {
+  const extensions = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/svg+xml': 'svg'
+  };
+  return extensions[file.type] || '';
+}
+
+async function refresh() {
+  const [propertyRows, assetRows] = await Promise.all([
+    request('/rest/v1/properties?select=*,property_photos(*)&order=sort_order.asc&property_photos.order=display_order.asc'),
+    request('/rest/v1/site_assets?select=*&order=asset_key.asc')
+  ]);
+  rows = propertyRows;
+  siteAssets = assetRows;
+  renderProperties();
+  renderSiteAssets();
+}
+
+function renderProperties() {
+  const list = $('#list');
+  list.replaceChildren();
+  if (!rows.length) list.append(node('p', 'Пока нет объектов. Добавьте первый.'));
+  rows.forEach(property => {
+    const row = node('div', undefined, 'admin-row');
+    const name = node('div');
+    const archived = Boolean(property.archived_at);
+    name.append(node('strong', property.name), node('div', archived ? 'В архиве' : 'Опубликован', 'muted'));
+    const actions = node('div', undefined, 'actions');
+    actions.append(button('Изменить', () => edit(property)));
+    if (archived) {
+      actions.append(button('Восстановить', () => setArchived(property, false)));
+      actions.append(button('Удалить навсегда', () => permanentlyDelete(property), 'small-btn danger'));
+    } else {
+      actions.append(button('В архив', () => setArchived(property, true)));
+    }
+    row.append(name, actions);
+    list.append(row);
+  });
+}
+
+async function setArchived(property, archived) {
+  try {
+    await request(`/rest/v1/properties?id=eq.${encodeURIComponent(property.id)}`, {
+      method: 'PATCH',
+      body: {archived_at: archived ? new Date().toISOString() : null}
+    });
+    await refresh();
+    status(archived ? 'Объект перемещён в архив.' : 'Объект восстановлен.');
+  } catch (error) {
+    status(error.message, true);
+  }
+}
+
+async function permanentlyDelete(property) {
+  if (!confirm(`Удалить объект «${property.name}» без возможности восстановления?`)) return;
+  try {
+    await request(`/rest/v1/properties?id=eq.${encodeURIComponent(property.id)}`, {method: 'DELETE'});
+    await refresh();
+    status('Объект удалён навсегда.');
+  } catch (error) {
+    status(error.message, true);
+  }
+}
+
+function renderSiteAssets() {
+  const container = $('#site-assets');
+  container.replaceChildren();
+  siteAssets.forEach(asset => {
+    const row = node('div', undefined, 'image-row');
+    const preview = node('img');
+    preview.src = asset.public_url;
+    preview.alt = asset.label;
+    const copy = node('div');
+    copy.append(node('strong', asset.label), node('div', asset.asset_key, 'muted'));
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/png,image/webp,image/svg+xml';
+    input.className = 'asset-file-input';
+    input.setAttribute('aria-label', `Заменить: ${asset.label}`);
+    input.onchange = event => replaceSiteAsset(asset, event.target.files[0], input);
+    row.append(preview, copy, input);
+    container.append(row);
+  });
+}
+
+async function replaceSiteAsset(asset, file, input) {
+  if (!file || busy) return;
+  const extension = imageExtension(file);
+  if (!extension || file.size > 5 * 1024 * 1024) {
+    input.value = '';
+    status('Разрешены JPG, PNG, WebP и SVG до 5 МБ.', true);
+    return;
+  }
+  busy = true;
+  input.disabled = true;
+  status(`Загружаем: ${asset.label}…`);
+  try {
+    const folder = asset.storage_path.split('/')[0];
+    const path = `${folder}/${asset.asset_key}-${crypto.randomUUID()}.${extension}`;
+    await uploadFile('site-assets', path, file);
+    await request(`/rest/v1/site_assets?asset_key=eq.${encodeURIComponent(asset.asset_key)}`, {
+      method: 'PATCH',
+      body: {storage_path: path, public_url: publicStorageUrl('site-assets', path)}
+    });
+    await refresh();
+    await window.BLAGO_ASSETS?.refresh();
+    status(`${asset.label}: изображение заменено во всех версиях сайта.`);
+  } catch (error) {
+    status(error.message, true);
+  } finally {
+    busy = false;
+    input.disabled = false;
+    input.value = '';
+  }
+}
+
+function renderPhotos() {
+  const container = $('#photos');
+  container.replaceChildren();
+  photos.forEach((photo, index) => {
+    const row = node('div', undefined, 'image-row');
+    const preview = node('img');
+    preview.src = photo.public_url;
+    preview.alt = `Фото ${index + 1}`;
+    row.append(preview, node('span', index === 0 ? 'Обложка' : `Фото ${index + 1}`));
+    if (index > 0) row.append(button('Выше', () => {
+      [photos[index - 1], photos[index]] = [photos[index], photos[index - 1]];
+      renderPhotos();
+    }));
+    if (index < photos.length - 1) row.append(button('Ниже', () => {
+      [photos[index], photos[index + 1]] = [photos[index + 1], photos[index]];
+      renderPhotos();
+    }));
+    row.append(button('Убрать', () => {
+      photos.splice(index, 1);
+      renderPhotos();
+    }));
+    container.append(row);
+  });
+}
+
+function edit(property) {
+  editing = property.id;
+  photos = structuredClone(property.property_photos || []);
+  const form = $('#editor');
+  ['name', 'location', 'description', 'sort_order'].forEach(key => {
+    form.elements[key].value = property[key] ?? '';
+  });
+  form.elements.visible.checked = !property.archived_at;
+  $('#upload').value = '';
+  $('#editor-title').textContent = rows.some(row => row.id === editing) ? 'Редактировать объект' : 'Новый объект';
+  renderPhotos();
+  form.hidden = false;
+  form.scrollIntoView({behavior: 'smooth'});
+}
+
+$('#login').onsubmit = async event => {
+  event.preventDefault();
+  const submit = event.submitter;
+  submit.disabled = true;
+  try {
+    const data = await request('/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      body: {
+        email: event.target.elements.email.value,
+        password: event.target.elements.password.value
+      }
+    });
+    token = data.access_token;
+    event.target.elements.password.value = '';
+    await refresh();
+    $('#login').hidden = true;
+    $('#dashboard').hidden = false;
+    status('Вы вошли. Изменения после сохранения появятся во всех версиях сайта.');
+  } catch (error) {
+    status(error.message, true);
+  } finally {
+    submit.disabled = false;
+  }
+};
+
+$('#logout').onclick = async () => {
+  try {
+    await request('/auth/v1/logout', {method: 'POST'});
+  } catch {}
+  token = '';
+  rows = [];
+  photos = [];
+  siteAssets = [];
+  $('#editor').reset();
+  $('#list').replaceChildren();
+  $('#site-assets').replaceChildren();
+  $('#dashboard').hidden = true;
+  $('#editor').hidden = true;
+  $('#login').hidden = false;
+  status('Вы вышли.');
+};
+
+$('#add').onclick = () => {
+  const id = crypto.randomUUID();
+  edit({
+    id,
+    slug: `property-${id}`,
+    name: '',
+    location: 'Эйлат',
+    description: '',
+    archived_at: new Date().toISOString(),
+    sort_order: rows.length + 1,
+    property_photos: []
+  });
+};
+
+$('#cancel').onclick = () => {
+  $('#editor').hidden = true;
+  photos = [];
+};
+
+$('#upload').onchange = async event => {
+  if (!token || busy) return;
+  busy = true;
+  const submit = $('#editor button[type=submit]');
+  submit.disabled = true;
+  status('Загружаем фотографии…');
+  try {
+    for (const file of event.target.files) {
+      const extension = imageExtension(file);
+      if (!['jpg', 'png', 'webp'].includes(extension) || file.size > 5 * 1024 * 1024) {
+        throw new Error('Разрешены JPG, PNG и WebP до 5 МБ на фотографию.');
+      }
+      const path = `properties/${editing}/${crypto.randomUUID()}.${extension}`;
+      await uploadFile('property-photos', path, file);
+      photos.push({
+        storage_path: path,
+        public_url: publicStorageUrl('property-photos', path),
+        top_offset: null,
+        mobile_top_offset: null,
+        alt_text: ''
+      });
+    }
+    renderPhotos();
+    status('Фотографии загружены. Нажмите «Сохранить», чтобы привязать их к объекту.');
+  } catch (error) {
+    status(error.message, true);
+  } finally {
+    busy = false;
+    submit.disabled = false;
+    event.target.value = '';
+  }
+};
+
+$('#editor').onsubmit = async event => {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.target;
+  const submit = event.submitter;
+  submit.disabled = true;
+  try {
+    if (form.elements.visible.checked && !photos.length) throw new Error('Добавьте хотя бы одну фотографию перед публикацией.');
+    const existing = rows.find(row => row.id === editing);
+    const property = {
+      id: editing,
+      slug: existing?.slug || `property-${editing}`,
+      name: form.elements.name.value.trim(),
+      location: form.elements.location.value.trim(),
+      description: form.elements.description.value.trim(),
+      sort_order: Number(form.elements.sort_order.value),
+      archived_at: form.elements.visible.checked ? null : (existing?.archived_at || new Date().toISOString())
+    };
+    await request('/rest/v1/properties?on_conflict=id', {
+      method: 'POST',
+      body: property,
+      headers: {Prefer: 'resolution=merge-duplicates'}
+    });
+    await request(`/rest/v1/property_photos?property_id=eq.${encodeURIComponent(editing)}`, {method: 'DELETE'});
+    if (photos.length) {
+      await request('/rest/v1/property_photos', {
+        method: 'POST',
+        body: photos.map((photo, index) => ({
+          property_id: editing,
+          storage_path: photo.storage_path,
+          public_url: photo.public_url,
+          display_order: index,
+          top_offset: photo.top_offset,
+          mobile_top_offset: photo.mobile_top_offset,
+          alt_text: photo.alt_text || property.name
+        }))
+      });
+    }
+    await refresh();
+    form.hidden = true;
+    status('Сохранено. Изменения доступны во всех версиях сайта.');
+  } catch (error) {
+    status(error.message, true);
+  } finally {
+    submit.disabled = false;
+  }
+};
+
+if (configured) {
+  $('#login').hidden = false;
+  status('Вход доступен только администраторам.');
+} else {
+  $('#setup').hidden = false;
+  status('Настройка хранения данных ещё не завершена.');
+}
