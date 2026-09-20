@@ -51,6 +51,33 @@ function photo(photoData, name) {
   const image = el('img'); image.src = safeUrl(photoData.src); image.alt = name; image.loading = 'lazy'; frame.append(image); return frame;
 }
 
+function playLabel() {
+  return {ru: 'Воспроизвести видео', en: 'Play video', he: 'הפעלת וידאו'}[currentLanguage];
+}
+
+function videoPreview(videoData, name, posterPhoto) {
+  const frame = posterPhoto ? photo(posterPhoto, name) : el('div', undefined, 'photo regular');
+  const url = safeUrl(videoData?.url);
+  if (!url) return frame;
+  const play = el('button', '▶', 'media-play');
+  play.type = 'button';
+  play.setAttribute('aria-label', playLabel());
+  play.onclick = () => {
+    const video = el('video');
+    video.src = url;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.setAttribute('aria-label', name);
+    frame.classList.add('playing');
+    frame.replaceChildren(video);
+    video.play().catch(() => {});
+  };
+  frame.append(play);
+  return frame;
+}
+
 function amenities() {
   const list = el('div', undefined, 'amenities');
   t('amenities').forEach(item => list.append(el('span', item)));
@@ -84,7 +111,8 @@ async function render() {
     properties.forEach(property => {
       const card = el('article', undefined, 'card');
       const name = localizeProperty(property, 'name') || property.name;
-      if (property.photos?.length) card.append(photo(property.photos[0], name));
+      if (property.video) card.append(videoPreview(property.video, name, property.photos?.[0]));
+      else if (property.photos?.length) card.append(photo(property.photos[0], name));
       const content = el('div', undefined, 'card-content');
       content.append(el('h3', name), el('p', localizeProperty(property, 'location') || t('eilatIsrael').split(',')[0], 'location'), el('p', localizeProperty(property, 'price') || t('conditions'), 'price'), amenities());
       const link = el('a', t('details'), 'outline'); link.href = detailUrl(property.id); content.append(link); card.append(content); cards.append(card);
@@ -104,7 +132,10 @@ function renderDetail(properties, id) {
   const name = localizeProperty(property, 'name') || property.name;
   document.title = name + ' — BLAGO home';
   section.append(el('div', t('detailEyebrow'), 'eyebrow'), el('h1', name));
-  const gallery = el('div', undefined, 'gallery'); (property.photos || []).forEach(item => gallery.append(photo(item, name))); section.append(gallery, amenities());
+  const gallery = el('div', undefined, 'gallery');
+  (property.photos || []).forEach(item => gallery.append(photo(item, name)));
+  if (property.video) gallery.append(videoPreview(property.video, name, property.photos?.[0]));
+  section.append(gallery, amenities());
   const info = el('div', undefined, 'detail-info'); info.append(el('h2', t('about')), el('p', localizeProperty(property, 'description')), el('h3', localizeProperty(property, 'price') || t('conditions')), el('p', t('demoDetail'))); section.append(info); main.append(section);
 }
 
