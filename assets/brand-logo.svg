@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" role="img" aria-labelledby="title">
+  <title id="title">BLAGO home</title>
+  <circle cx="32" cy="32" r="28" fill="#0872ce"/>
+  <text x="32" y="43" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#ffffff">B</text>
+  <text x="72" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800" fill="#124b80">BLAGO</text>
+  <text x="180" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="400" fill="#124b80">home</text>
+</svg>
