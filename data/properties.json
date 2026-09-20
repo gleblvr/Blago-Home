@@ -13,12 +13,12 @@
     "sort_order": 1,
     "photos": [
       {
-        "src": "assets/1000022379.jpg",
+        "src": "https://ljundbqybtmcyefgdiix.supabase.co/storage/v1/object/public/property-photos/properties/la-1/1000022379.jpg",
         "top": -55.78,
         "mobileTop": -55.78
       },
       {
-        "src": "assets/1000022380.jpg",
+        "src": "https://ljundbqybtmcyefgdiix.supabase.co/storage/v1/object/public/property-photos/properties/la-1/1000022380.jpg",
         "top": -94.45,
         "mobileTop": -94.45
       }
@@ -38,12 +38,12 @@
     "sort_order": 2,
     "photos": [
       {
-        "src": "assets/1000022383.jpg",
+        "src": "https://ljundbqybtmcyefgdiix.supabase.co/storage/v1/object/public/property-photos/properties/la-2/1000022383.jpg",
         "top": -65.06,
         "mobileTop": -65.06
       },
       {
-        "src": "assets/1000022381.jpg",
+        "src": "https://ljundbqybtmcyefgdiix.supabase.co/storage/v1/object/public/property-photos/properties/la-2/1000022381.jpg",
         "top": -55.78,
         "mobileTop": -55.78
       }
@@ -63,7 +63,7 @@
     "sort_order": 3,
     "photos": [
       {
-        "src": "assets/1000022385.jpg",
+        "src": "https://ljundbqybtmcyefgdiix.supabase.co/storage/v1/object/public/property-photos/properties/la-3/1000022385.jpg",
         "top": -55.78,
         "mobileTop": -55.78
       }
@@ -83,7 +83,7 @@
     "sort_order": 4,
     "photos": [
       {
-        "src": "assets/1000022389.jpg",
+        "src": "https://ljundbqybtmcyefgdiix.supabase.co/storage/v1/object/public/property-photos/properties/la-4/1000022389.jpg",
         "top": -178.33,
         "mobileTop": -178.33
       }
