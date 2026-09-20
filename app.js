@@ -60,7 +60,7 @@ function amenities() {
 async function getProperties() {
   if (propertiesData) return propertiesData;
   if (cfg.supabaseUrl && cfg.supabaseAnonKey) {
-    const response = await fetch(cfg.supabaseUrl + '/rest/v1/properties?visible=eq.true&order=sort_order.asc', { headers: { apikey: cfg.supabaseAnonKey, Authorization: 'Bearer ' + cfg.supabaseAnonKey } });
+    const response = await fetch(cfg.supabaseUrl + '/rest/v1/website_properties?order=sort_order.asc', { headers: { apikey: cfg.supabaseAnonKey } });
     if (!response.ok) throw Error(t('loadError'));
     propertiesData = await response.json();
   } else {

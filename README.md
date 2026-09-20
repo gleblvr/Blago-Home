@@ -1,6 +1,6 @@
 # BLAGO home
 
-First corporate design (blue/white), responsive static demo for GitHub Pages.
+Responsive tourist and corporate versions for GitHub Pages, backed by the Frankfurt Supabase project.
 
 ## Preview
 
@@ -17,22 +17,20 @@ Before commercial launch, use a host whose terms allow the intended business use
 
 ## Content and admin
 
-The public site currently reads `data/properties.json`. Admin lives at `/admin/`.
-**Admin is implemented but is not operational until a Supabase project is connected.**
-It uses email/password authentication; only explicitly allowlisted admin users may change data.
-No fake login, client-side passwords, or browser-local edits represented as publication.
+The public site reads `website_properties` and `site_assets` from Supabase. Admin lives at `/admin/` and uses email/password authentication. Only allowlisted administrators can change data.
 
-Connection steps:
-1. Create a Supabase project; run `setup/supabase.sql` once.
-2. Create the owner's user in Authentication. Disable public signups.
-3. Add the user UUID to `site_admins` using the commented SQL statement.
-4. Run `setup/seed.sql` to import the initial property catalogue.
-5. Set the public URL and anon/publishable key in `config.js`. Never use service_role.
-6. Verify anonymous writes are denied, an ordinary user cannot edit, and the owner can log in, add/hide/edit properties, upload and reorder photos.
+All images are stored in Supabase Storage and listed in the `image_links` database view:
+
+- `site_assets` contains the single shared logo, favicon, and Eilat background.
+- `property_photos` contains property images and their display order/crop positions.
+- Both tourist and corporate versions load `brand_logo` from the same database row.
+- Replacing a shared asset in the admin updates its database URL and changes it everywhere without a code edit.
+
+Only the public Supabase URL and publishable key belong in `config.js`. Never place a service-role or secret key in the repository.
 
 Sessions are held in memory; reload signs out, and expired tokens require login.
 Uploads limited to JPG/PNG/WebP ≤5 MB. Removing a photo from a listing does not delete the underlying storage object (prevents accidental loss); unused uploads require periodic cleanup.
-With configured backend, failed requests display an error rather than falling back to potentially stale public data.
+With the configured backend, failed requests display an error instead of silently showing stale local data.
 
 ## Assets and known limitations
 

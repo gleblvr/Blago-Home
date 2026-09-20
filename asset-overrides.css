@@ -1,0 +1,49 @@
+:root {
+  --site-eilat-panorama: none;
+}
+
+.brand-lockup {
+  display: block;
+  line-height: 1;
+}
+
+.brand-logo {
+  display: block;
+  width: 210px;
+  height: 45px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.brand small {
+  margin-top: 4px;
+}
+
+.hero {
+  background-image: linear-gradient(90deg, rgba(6, 34, 61, .84), rgba(6, 34, 61, .34)), var(--site-eilat-panorama);
+}
+
+.contact-photo {
+  background-image: var(--site-eilat-panorama);
+}
+
+.tour-hero {
+  background-image: linear-gradient(90deg, rgba(3, 28, 47, .72), rgba(3, 28, 47, .15)), var(--site-eilat-panorama);
+}
+
+.tour-eilat-photo {
+  background-image: linear-gradient(rgba(1, 62, 86, .05), rgba(1, 62, 86, .05)), var(--site-eilat-panorama);
+}
+
+.tour-footer .brand-logo {
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+@media (max-width: 760px) {
+  .brand-logo {
+    width: 170px;
+    height: 38px;
+  }
+}
