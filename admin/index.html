@@ -6,11 +6,12 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Управление — BLAGO home</title>
   <link rel="icon" data-site-asset-href="brand_favicon">
-  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../styles.css?v=6">
   <link rel="stylesheet" href="../asset-overrides.css">
   <script src="../config.js" defer></script>
   <script src="../site-assets.js" defer></script>
-  <script src="admin.js" defer></script>
+  <script src="video-compressor.js?v=1" defer></script>
+  <script src="admin.js?v=2" defer></script>
 </head>
 <body>
   <header>
@@ -55,6 +56,10 @@
       <p class="muted">Первая фотография — обложка объекта.</p>
       <div id="photos"></div>
       <label>Добавить фотографии<input id="upload" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <h3 style="margin-top:24px">Видео</h3>
+      <p class="muted">Одно видео до 3 минут. Перед загрузкой оно автоматически уменьшается до 720p; в Supabase попадёт только сжатая версия размером не более 50 МБ. Во время обработки не закрывайте вкладку.</p>
+      <div id="property-video"></div>
+      <label>Выбрать или заменить видео<input id="video-upload" type="file" accept="video/*"></label>
       <div class="actions"><button type="submit" class="button">Сохранить</button><button type="button" id="cancel" class="small-btn">Отмена</button></div>
     </form>
   </main>
