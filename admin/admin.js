@@ -21,6 +21,12 @@ function status(text, error = false) {
   $('#status').classList.toggle('error', error);
 }
 
+function photoStatus(text, error = false) {
+  const element = $('#photo-status');
+  element.textContent = text;
+  element.classList.toggle('error', error);
+}
+
 function node(tag, text, className) {
   const element = document.createElement(tag);
   if (text !== undefined) element.textContent = text;
@@ -294,6 +300,7 @@ function edit(property) {
   });
   form.elements.visible.checked = !property.archived_at;
   $('#upload').value = '';
+  photoStatus('');
   $('#video-upload').value = '';
   $('#editor-title').textContent = rows.some(row => row.id === editing) ? 'Редактировать объект' : 'Новый объект';
   renderPhotos();
@@ -373,11 +380,22 @@ $('#cancel').onclick = () => {
   clearVideoPreviewUrl();
 };
 
+$('#choose-photos').onclick = () => {
+  if (busy) return;
+  $('#upload').click();
+};
+
 $('#upload').onchange = async event => {
-  if (!token || busy) return;
+  if (!event.target.files.length || busy) return;
+  if (!token) {
+    photoStatus('Войдите снова, чтобы загрузить фотографии.', true);
+    return;
+  }
   busy = true;
   const submit = $('#editor button[type=submit]');
   submit.disabled = true;
+  $('#choose-photos').disabled = true;
+  photoStatus('Загружаем фотографии…');
   status('Загружаем фотографии…');
   try {
     for (const file of event.target.files) {
@@ -396,12 +414,15 @@ $('#upload').onchange = async event => {
       });
     }
     renderPhotos();
+    photoStatus('Фотографии загружены. Нажмите «Сохранить», чтобы привязать их к объекту.');
     status('Фотографии загружены. Нажмите «Сохранить», чтобы привязать их к объекту.');
   } catch (error) {
+    photoStatus(error.message, true);
     status(error.message, true);
   } finally {
     busy = false;
     submit.disabled = false;
+    $('#choose-photos').disabled = false;
     event.target.value = '';
   }
 };
