@@ -11,7 +11,7 @@
   <script src="../config.js" defer></script>
   <script src="../site-assets.js" defer></script>
   <script src="video-compressor.js?v=1" defer></script>
-  <script src="admin.js?v=3" defer></script>
+  <script src="admin.js?v=4" defer></script>
   <script src="calendar.js?v=1" defer></script>
 </head>
 <body>
@@ -95,7 +95,9 @@
       <h3 style="margin-top:24px">Фотографии</h3>
       <p class="muted">Первая фотография — обложка объекта.</p>
       <div id="photos"></div>
-      <label>Добавить фотографии<input id="upload" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <button type="button" id="choose-photos" class="small-btn">Добавить фото</button>
+      <input id="upload" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden style="display:none" aria-label="Выбрать фотографии с устройства">
+      <p id="photo-status" class="muted" role="status" aria-live="polite"></p>
       <h3 style="margin-top:24px">Видео</h3>
       <p class="muted">Одно видео до 3 минут. Перед загрузкой оно автоматически уменьшается до 720p; в Supabase попадёт только сжатая версия размером не более 50 МБ. Во время обработки не закрывайте вкладку.</p>
       <div id="property-video"></div>
