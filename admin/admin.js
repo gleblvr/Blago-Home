@@ -380,11 +380,6 @@ $('#cancel').onclick = () => {
   clearVideoPreviewUrl();
 };
 
-$('#choose-photos').onclick = () => {
-  if (busy) return;
-  $('#upload').click();
-};
-
 $('#upload').onchange = async event => {
   if (!event.target.files.length || busy) return;
   if (!token) {
@@ -394,7 +389,7 @@ $('#upload').onchange = async event => {
   busy = true;
   const submit = $('#editor button[type=submit]');
   submit.disabled = true;
-  $('#choose-photos').disabled = true;
+  event.target.disabled = true;
   photoStatus('Загружаем фотографии…');
   status('Загружаем фотографии…');
   try {
@@ -422,7 +417,7 @@ $('#upload').onchange = async event => {
   } finally {
     busy = false;
     submit.disabled = false;
-    $('#choose-photos').disabled = false;
+    event.target.disabled = false;
     event.target.value = '';
   }
 };
