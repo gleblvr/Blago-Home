@@ -78,12 +78,17 @@ async function uploadFile(bucket, path, file) {
     headers: {
       apikey: cfg.supabaseAnonKey,
       Authorization: `Bearer ${token}`,
-      'Content-Type': file.type,
-      'x-upsert': 'false'
+      'Content-Type': file.type
     },
     body: file
   });
-  if (!response.ok) throw new Error('Не удалось загрузить файл. Проверьте доступ к хранилищу.');
+  if (!response.ok) {
+    const responseText = await response.text();
+    let details = {};
+    try { details = JSON.parse(responseText); } catch {}
+    const reason = details.message || details.error || responseText.slice(0, 180) || 'Причина не указана';
+    throw new Error(`Не удалось загрузить файл (${response.status}): ${reason}`);
+  }
 }
 
 async function deleteStorageFiles(bucket, paths) {
