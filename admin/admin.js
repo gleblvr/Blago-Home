@@ -109,6 +109,59 @@ function imageExtension(file) {
   return extensions[file.type] || '';
 }
 
+const descriptionLanguages = ['ru', 'en', 'he'];
+
+function translationSegments(text) {
+  const encoder = new TextEncoder();
+  const segments = [];
+  let segment = '';
+  for (const part of text.match(/\S+\s*|\s+/gu) || []) {
+    if (encoder.encode(segment + part).length > 450 && segment) {
+      segments.push(segment);
+      segment = '';
+    }
+    for (const character of part) {
+      if (encoder.encode(segment + character).length > 450) {
+        segments.push(segment);
+        segment = '';
+      }
+      segment += character;
+    }
+  }
+  if (segment) segments.push(segment);
+  return segments;
+}
+
+async function translateDescription(text, source, target) {
+  if ('Translator' in self) {
+    try {
+      const options = {sourceLanguage: source, targetLanguage: target};
+      if (await Translator.availability(options) !== 'unavailable') {
+        const translator = await Translator.create(options);
+        try { return (await translator.translate(text)).trim(); }
+        finally { translator.destroy(); }
+      }
+    } catch {} // Use the network translator if this language pair or device is unsupported.
+  }
+  const segments = translationSegments(text);
+  const translated = [];
+  for (const segment of segments) {
+    if (!segment.trim()) { translated.push(segment); continue; }
+    const url = new URL('https://api.mymemory.translated.net/get');
+    url.searchParams.set('q', segment.trim());
+    url.searchParams.set('langpair', `${source}|${target}`);
+    const response = await fetch(url);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || Number(data.responseStatus) !== 200 || !data.responseData?.translatedText) {
+      throw new Error(`Автоперевод ${source.toUpperCase()} → ${target.toUpperCase()} недоступен: ${data.responseDetails || `ошибка ${response.status}`}. Текст не сохранён; попробуйте позже или заполните этот язык вручную.`);
+    }
+    const decoder = document.createElement('textarea');
+    decoder.innerHTML = data.responseData.translatedText;
+    translated.push(decoder.value + (segment.match(/\s+$/u)?.[0] || ''));
+  }
+  return translated.join('').trim();
+}
+
 async function refresh() {
   const [propertyRows, assetRows] = await Promise.all([
     request('/rest/v1/properties?select=*,property_photos(*),property_videos(*)&order=sort_order.asc&property_photos.order=display_order.asc'),
@@ -300,8 +353,11 @@ function edit(property) {
   pendingVideo = null;
   videoRemoved = false;
   const form = $('#editor');
-  ['name', 'location', 'description', 'sort_order'].forEach(key => {
+  ['name', 'location', 'sort_order'].forEach(key => {
     form.elements[key].value = property[key] ?? '';
+  });
+  descriptionLanguages.forEach(language => {
+    form.elements[`description_${language}`].value = property.translations?.[language]?.description || (language === 'ru' ? property.description : '') || '';
   });
   form.elements.visible.checked = !property.archived_at;
   $('#upload').value = '';
@@ -369,6 +425,7 @@ $('#add').onclick = () => {
     name: '',
     location: 'Эйлат',
     description: '',
+    translations: {},
     archived_at: new Date().toISOString(),
     sort_order: rows.length + 1,
     property_photos: [],
@@ -461,12 +518,26 @@ $('#editor').onsubmit = async event => {
   try {
     if (form.elements.visible.checked && !photos.length) throw new Error('Добавьте хотя бы одну фотографию перед публикацией.');
     const existing = rows.find(row => row.id === editing);
+    const descriptions = Object.fromEntries(descriptionLanguages.map(language => [language, form.elements[`description_${language}`].value.trim()]));
+    const sourceLanguage = descriptionLanguages.find(language => descriptions[language]);
+    if (!sourceLanguage) throw new Error('Заполните описание хотя бы на одном языке.');
+    for (const language of descriptionLanguages) {
+      if (descriptions[language]) continue;
+      status(`Переводим описание: ${sourceLanguage.toUpperCase()} → ${language.toUpperCase()}…`);
+      descriptions[language] = await translateDescription(descriptions[sourceLanguage], sourceLanguage, language);
+      form.elements[`description_${language}`].value = descriptions[language];
+    }
+    const translations = structuredClone(existing?.translations || {});
+    descriptionLanguages.forEach(language => {
+      translations[language] = {...(translations[language] || {}), description: descriptions[language]};
+    });
     const property = {
       id: editing,
       slug: existing?.slug || `property-${editing}`,
       name: form.elements.name.value.trim(),
       location: form.elements.location.value.trim(),
-      description: form.elements.description.value.trim(),
+      description: descriptions.ru,
+      translations,
       sort_order: Number(form.elements.sort_order.value),
       archived_at: form.elements.visible.checked ? null : (existing?.archived_at || new Date().toISOString())
     };
