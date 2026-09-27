@@ -16,4 +16,5 @@
 .contact-person a[href^="tel:"]{white-space:nowrap}
 @media(max-width:760px){.tour-eilat-photo{min-height:230px}}
 .tour-card-photo-link{display:block}
+.tour-card-photo-link .tour-photo{aspect-ratio:auto}.tour-card-photo-link .tour-photo img{position:static;width:100%;height:auto;object-fit:contain}
 .footer-contacts{min-width:0}.contact-person{display:grid;grid-template-columns:minmax(62px,auto) auto;align-items:center;justify-content:start;column-gap:10px;row-gap:2px;margin:0 0 14px;font-size:14px}.contact-person>span{font-weight:700;color:#fff}.tour-footer .contact-person .whatsapp-link{grid-row:1 / span 2;display:block;width:27px;height:27px;margin:0;background:url('assets/whatsapp.svg') center/27px 27px no-repeat;font-size:0}.contact-person a[href^="tel:"]{direction:ltr;unicode-bidi:embed}.copy-phone{grid-column:2;justify-self:start;border:0;background:transparent;padding:0;color:#9fbbca;font-size:12px;text-decoration:underline;cursor:pointer}.copy-phone:hover{color:#fff}.copy-status{display:block;min-height:18px;color:#72d8a7;font-size:12px}
