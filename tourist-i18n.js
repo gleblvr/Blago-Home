@@ -10,7 +10,7 @@ window.BLAGO_TOURIST_I18N = {
     whyTitle: 'למה בוחרים בנו', why1Title: 'מיקום נוח באילת', why1Text: 'קרוב לכל מה שצריך לחופשה נעימה.', why2Title: 'יחס אישי', why2Text: 'איש קשר אחד לפני ההגעה ובמהלך השהייה.', why3Title: 'מחיר ישיר', why3Text: 'ללא עמלת פלטפורמת הזמנות.', why4Title: 'כל מה שצריך', why4Text: 'מטבח, כלי אוכל, מכונת כביסה ואינטרנט.',
     eilatTitle: 'אילת היא יותר מהים', eilatText: 'ים סוף, הרי המדבר, מזג אוויר חם ואפשרויות בילוי לכל המשפחה.', eilatAction: 'לבחירת דירה',
     contactTitle: 'מתכננים חופשה באילת?', contactText: 'כתבו לנו תאריכים, מספר אורחים והדירה שמצאה חן בעיניכם.', contactDemo: 'פרטי הקשר והזמנה ישירה יתווספו לפני ההשקה.',
-    footerQuick: 'קישורים מהירים', adminLink: 'ניהול האתר', eilatIsrael: 'אילת, ישראל', photoCredit: 'צילום אילת',
+    footerQuick: 'קישורים מהירים', contactHeading: 'יצירת קשר', natalie: 'נטלי', gleb: 'גלב', copyNumber: 'העתקה', copied: 'המספר הועתק', adminLink: 'ניהול האתר', eilatIsrael: 'אילת, ישראל', photoCredit: 'צילום אילת',
     loading: 'טוענים דירות…', loadError: 'לא ניתן לטעון את הדירות. נסו שוב מאוחר יותר.', empty: 'אין כרגע דירות שפורסמו.',
     priceRequest: 'מחיר וזמינות לפי תאריכים', details: 'לפרטים נוספים ←', amenities: ['Wi-Fi','מטבח','מכונת כביסה'], back: 'כל הדירות →', notFound: 'הדירה לא נמצאה', notFoundText: 'ייתכן שהדירה הוסרה מהאתר.', about: 'על הדירה', detailEyebrow: 'דירת נופש באילת', demoDetail: 'גרסת הדגמה. הזמנות עדיין אינן פעילות.', chooseDates: 'בדיקת זמינות'
   },
@@ -24,7 +24,7 @@ window.BLAGO_TOURIST_I18N = {
     whyTitle: 'Why guests choose us', why1Title: 'Convenient Eilat locations', why1Text: 'Close to everything you need for a comfortable stay.', why2Title: 'Personal service', why2Text: 'One point of contact before arrival and during your stay.', why3Title: 'Direct price', why3Text: 'No booking-platform commission.', why4Title: 'Everyday essentials', why4Text: 'Kitchen, tableware, washing machine and internet.',
     eilatTitle: 'Eilat is more than the sea', eilatText: 'The Red Sea, desert mountains, warm weather and activities for the whole family.', eilatAction: 'Choose an apartment',
     contactTitle: 'Planning a holiday in Eilat?', contactText: 'Tell us your dates, number of guests and which apartment you like.', contactDemo: 'Contact details and direct booking will be added before launch.',
-    footerQuick: 'Quick links', adminLink: 'Site management', eilatIsrael: 'Eilat, Israel', photoCredit: 'Eilat photo',
+    footerQuick: 'Quick links', contactHeading: 'Contact', natalie: 'Natalie', gleb: 'Gleb', copyNumber: 'Copy', copied: 'Number copied', adminLink: 'Site management', eilatIsrael: 'Eilat, Israel', photoCredit: 'Eilat photo',
     loading: 'Loading apartments…', loadError: 'Unable to load the apartments. Please try again later.', empty: 'There are no published apartments at the moment.',
     priceRequest: 'Price and availability for your dates', details: 'View details →', amenities: ['Wi-Fi','Kitchen','Washing machine'], back: '← All apartments', notFound: 'Apartment not found', notFoundText: 'It may no longer be published.', about: 'About the apartment', detailEyebrow: 'Holiday apartment in Eilat', demoDetail: 'Demo version. Booking is not yet available.', chooseDates: 'Check availability'
   },
@@ -38,7 +38,7 @@ window.BLAGO_TOURIST_I18N = {
     whyTitle: 'Почему выбирают нас', why1Title: 'Удобные районы Эйлата', why1Text: 'Рядом всё необходимое для комфортного отдыха.', why2Title: 'Личный подход', why2Text: 'Один контакт до заезда и во время проживания.', why3Title: 'Цена напрямую', why3Text: 'Без комиссии площадки бронирования.', why4Title: 'Всё необходимое', why4Text: 'Кухня, посуда, стиральная машина и интернет.',
     eilatTitle: 'Эйлат — это больше, чем море', eilatText: 'Красное море, горы пустыни, тёплый климат и развлечения для всей семьи.', eilatAction: 'Выбрать квартиру',
     contactTitle: 'Планируете отдых в Эйлате?', contactText: 'Напишите даты, количество гостей и какая квартира вам понравилась.', contactDemo: 'Контакты и прямое бронирование появятся перед запуском.',
-    footerQuick: 'Быстрые ссылки', adminLink: 'Управление сайтом', eilatIsrael: 'Эйлат, Израиль', photoCredit: 'Фото Эйлата',
+    footerQuick: 'Быстрые ссылки', contactHeading: 'Контакты', natalie: 'Натали', gleb: 'Глеб', copyNumber: 'Копировать', copied: 'Номер скопирован', adminLink: 'Управление сайтом', eilatIsrael: 'Эйлат, Израиль', photoCredit: 'Фото Эйлата',
     loading: 'Загружаем квартиры…', loadError: 'Не удалось загрузить квартиры. Попробуйте позже.', empty: 'Сейчас нет опубликованных квартир.',
     priceRequest: 'Цена и доступность на ваши даты', details: 'Подробнее →', amenities: ['Wi-Fi','Кухня','Стиральная машина'], back: '← Все квартиры', notFound: 'Квартира не найдена', notFoundText: 'Возможно, она снята с публикации.', about: 'О квартире', detailEyebrow: 'Квартира для отдыха в Эйлате', demoDetail: 'Демонстрационная версия. Бронирование пока не работает.', chooseDates: 'Проверить даты'
   }
