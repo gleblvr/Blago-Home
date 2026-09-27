@@ -111,8 +111,13 @@ async function render() {
     properties.forEach(property => {
       const card = el('article', undefined, 'card');
       const name = localizeProperty(property, 'name') || property.name;
-      if (property.video) card.append(videoPreview(property.video, name, property.photos?.[0]));
-      else if (property.photos?.length) card.append(photo(property.photos[0], name));
+      if (property.photos?.length) {
+        const photoLink = el('a', undefined, 'card-photo-link');
+        photoLink.href = detailUrl(property.id);
+        photoLink.setAttribute('aria-label', `${t('details')}: ${name}`);
+        photoLink.append(photo(property.photos[0], name));
+        card.append(photoLink);
+      }
       const content = el('div', undefined, 'card-content');
       content.append(el('h3', name), el('p', localizeProperty(property, 'location') || t('eilatIsrael').split(',')[0], 'location'), el('p', localizeProperty(property, 'price') || t('conditions'), 'price'), amenities());
       const link = el('a', t('details'), 'outline'); link.href = detailUrl(property.id); content.append(link); card.append(content); cards.append(card);
