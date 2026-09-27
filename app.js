@@ -152,5 +152,10 @@ document.getElementById('year').textContent = new Date().getFullYear();
 document.getElementById('menu').onclick = () => { const nav = document.getElementById('nav'); const open = nav.classList.toggle('open'); document.getElementById('menu').setAttribute('aria-expanded', String(open)); };
 document.querySelectorAll('nav a').forEach(link => link.addEventListener('click', () => { document.getElementById('nav').classList.remove('open'); document.getElementById('menu').setAttribute('aria-expanded', 'false'); }));
 document.getElementById('language-select').addEventListener('change', event => setLanguage(event.target.value));
+document.querySelectorAll('.copy-phone').forEach(button => button.addEventListener('click', async () => {
+  const status = button.closest('.footer-contacts').querySelector('.copy-status');
+  try { await navigator.clipboard.writeText(button.dataset.phone); status.textContent = t('copied'); }
+  catch { status.textContent = button.dataset.phone; }
+}));
 applyLanguage();
 render();
