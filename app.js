@@ -136,7 +136,7 @@ function renderDetail(properties, id) {
   (property.photos || []).forEach(item => gallery.append(photo(item, name)));
   if (property.video) gallery.append(videoPreview(property.video, name, property.photos?.[0]));
   section.append(gallery, amenities());
-  const info = el('div', undefined, 'detail-info'); info.append(el('h2', t('about')), el('p', localizeProperty(property, 'description')), el('h3', localizeProperty(property, 'price') || t('conditions')), el('p', t('demoDetail'))); section.append(info); main.append(section);
+  const info = el('div', undefined, 'detail-info'); info.append(el('h2', t('about')), el('p', localizeProperty(property, 'description')), el('h3', localizeProperty(property, 'price') || t('conditions'))); section.append(info); main.append(section);
 }
 
 async function setLanguage(language) {
