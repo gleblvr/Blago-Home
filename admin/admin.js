@@ -174,6 +174,25 @@ async function refresh() {
   window.BLAGO_CALENDAR?.setProperties(rows);
 }
 
+async function placePropertyAtSortOrder(propertyId, requestedSortOrder) {
+  const others = rows
+    .filter(row => row.id !== propertyId)
+    .slice()
+    .sort((left, right) => Number(left.sort_order) - Number(right.sort_order));
+  const sortOrder = Math.min(Math.max(1, requestedSortOrder), others.length + 1);
+  const updates = others
+    .map((row, index) => ({row, sortOrder: index >= sortOrder - 1 ? index + 2 : index + 1}))
+    .filter(({row, sortOrder: nextSortOrder}) => Number(row.sort_order) !== nextSortOrder);
+
+  for (const {row, sortOrder: nextSortOrder} of updates) {
+    await request(`/rest/v1/properties?id=eq.${encodeURIComponent(row.id)}`, {
+      method: 'PATCH',
+      body: {sort_order: nextSortOrder}
+    });
+  }
+  return sortOrder;
+}
+
 function renderProperties() {
   const list = $('#list');
   list.replaceChildren();
@@ -531,6 +550,7 @@ $('#editor').onsubmit = async event => {
     descriptionLanguages.forEach(language => {
       translations[language] = {...(translations[language] || {}), description: descriptions[language]};
     });
+    const sortOrder = await placePropertyAtSortOrder(editing, Number(form.elements.sort_order.value));
     const property = {
       id: editing,
       slug: existing?.slug || `property-${editing}`,
@@ -538,7 +558,7 @@ $('#editor').onsubmit = async event => {
       location: form.elements.location.value.trim(),
       description: descriptions.ru,
       translations,
-      sort_order: Number(form.elements.sort_order.value),
+      sort_order: sortOrder,
       archived_at: form.elements.visible.checked ? null : (existing?.archived_at || new Date().toISOString())
     };
     await request('/rest/v1/properties?on_conflict=id', {
