@@ -119,7 +119,10 @@ async function render() {
         card.append(photoLink);
       }
       const content = el('div', undefined, 'card-content');
-      content.append(el('h3', name), el('p', localizeProperty(property, 'location') || t('eilatIsrael').split(',')[0], 'location'), el('p', localizeProperty(property, 'price') || t('conditions'), 'price'), amenities());
+      content.append(el('h3', name), el('p', localizeProperty(property, 'location') || t('eilatIsrael').split(',')[0], 'location'));
+      const price = localizeProperty(property, 'price');
+      if (price) content.append(el('p', price, 'price'));
+      content.append(amenities());
       const link = el('a', t('details'), 'outline'); link.href = detailUrl(property.id); content.append(link); card.append(content); cards.append(card);
     });
   } catch (error) {
