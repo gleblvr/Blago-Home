@@ -104,8 +104,13 @@ async function render() {
     properties.forEach(property => {
       const name = localizeProperty(property, 'name') || property.name;
       const card = el('article', undefined, 'tour-card');
-      if (property.video) card.append(videoPreview(property.video, name, property.photos?.[0]));
-      else if (property.photos?.length) card.append(photo(property.photos[0], name));
+      if (property.photos?.length) {
+        const photoLink = el('a', undefined, 'tour-card-photo-link');
+        photoLink.href = detailUrl(property.id);
+        photoLink.setAttribute('aria-label', `${t('details')}: ${name}`);
+        photoLink.append(photo(property.photos[0], name));
+        card.append(photoLink);
+      }
       const content = el('div', undefined, 'tour-card-content');
       content.append(el('h3', name), el('p', localizeProperty(property, 'location') || t('eilatIsrael'), 'tour-location'), el('p', t('priceRequest'), 'tour-price'));
       const link = el('a', t('details'), 'tour-card-link'); link.href = detailUrl(property.id);
