@@ -27,6 +27,12 @@ function photoStatus(text, error = false) {
   element.classList.toggle('error', error);
 }
 
+function videoStatus(text, error = false) {
+  const element = $('#video-status');
+  element.textContent = text;
+  element.classList.toggle('error', error);
+}
+
 function node(tag, text, className) {
   const element = document.createElement(tag);
   if (text !== undefined) element.textContent = text;
@@ -382,6 +388,7 @@ function edit(property) {
   $('#upload').value = '';
   photoStatus('');
   $('#video-upload').value = '';
+  videoStatus('');
   $('#editor-title').textContent = rows.some(row => row.id === editing) ? 'Редактировать объект' : 'Новый объект';
   renderPhotos();
   renderPropertyVideo();
@@ -510,18 +517,18 @@ $('#video-upload').onchange = async event => {
   const submit = $('#editor button[type=submit]');
   submit.disabled = true;
   videoRemoved = false;
-  status('Подготавливаем видео к сжатию…');
+  videoStatus('Подготавливаем видео к сжатию…');
   try {
     pendingVideo = await window.BLAGO_VIDEO.compress(file, progress => {
-      status(`Сжимаем видео: ${progress}% — не закрывайте вкладку.`);
+      videoStatus(`Сжимаем видео: ${progress}% — не закрывайте вкладку.`);
     });
     renderPropertyVideo();
-    status(`Видео сжато до ${formatMegabytes(pendingVideo.file.size)}. Нажмите «Сохранить», чтобы загрузить его.`);
+    videoStatus(`Видео сжато до ${formatMegabytes(pendingVideo.file.size)}. Нажмите «Сохранить», чтобы загрузить его.`);
   } catch (error) {
     pendingVideo = null;
     event.target.value = '';
     renderPropertyVideo();
-    status(error.message, true);
+    videoStatus(error.message, true);
   } finally {
     busy = false;
     submit.disabled = false;
@@ -534,6 +541,7 @@ $('#editor').onsubmit = async event => {
   const form = event.target;
   const submit = event.submitter;
   submit.disabled = true;
+  let savingVideo = false;
   try {
     if (form.elements.visible.checked && !photos.length) throw new Error('Добавьте хотя бы одну фотографию перед публикацией.');
     const existing = rows.find(row => row.id === editing);
@@ -583,9 +591,10 @@ $('#editor').onsubmit = async event => {
     }
     const oldVideoPath = propertyVideo?.storage_path || '';
     if (pendingVideo) {
+      savingVideo = true;
       const extension = pendingVideo.file.type === 'video/mp4' ? 'mp4' : 'webm';
       const path = `properties/${editing}/${crypto.randomUUID()}.${extension}`;
-      status('Загружаем сжатое видео…');
+      videoStatus('Загружаем сжатое видео…');
       await uploadFile('property-videos', path, pendingVideo.file);
       try {
         await request('/rest/v1/property_videos?on_conflict=property_id', {
@@ -608,6 +617,7 @@ $('#editor').onsubmit = async event => {
       if (oldVideoPath && oldVideoPath !== path) {
         await deleteStorageFiles('property-videos', [oldVideoPath]).catch(() => {});
       }
+      savingVideo = false;
     } else if (videoRemoved && propertyVideo) {
       await request(`/rest/v1/property_videos?property_id=eq.${encodeURIComponent(editing)}`, {method: 'DELETE'});
       if (oldVideoPath) await deleteStorageFiles('property-videos', [oldVideoPath]).catch(() => {});
@@ -620,7 +630,8 @@ $('#editor').onsubmit = async event => {
     clearVideoPreviewUrl();
     status('Сохранено. Изменения доступны во всех версиях сайта.');
   } catch (error) {
-    status(error.message, true);
+    if (savingVideo) videoStatus(error.message, true);
+    else status(error.message, true);
   } finally {
     submit.disabled = false;
   }
