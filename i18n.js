@@ -6,4 +6,7 @@ he:{pageTitle:'BLAGO home — מגורי עובדים באילת',metaDescriptio
 };
 window.BLAGO_I18N.ru.touristVersion = 'Для туристов';
 window.BLAGO_I18N.en.touristVersion = 'Holiday rentals';
+Object.assign(window.BLAGO_I18N.ru, {contactHeading:'Контакты', natalie:'Натали', gleb:'Глеб', copyNumber:'Копировать', copied:'Номер скопирован'});
+Object.assign(window.BLAGO_I18N.en, {contactHeading:'Contact', natalie:'Natalie', gleb:'Gleb', copyNumber:'Copy', copied:'Number copied'});
+Object.assign(window.BLAGO_I18N.he, {contactHeading:'יצירת קשר', natalie:'נטלי', gleb:'גלב', copyNumber:'העתקה', copied:'המספר הועתק'});
 window.BLAGO_I18N.he.touristVersion = 'דירות נופש';
