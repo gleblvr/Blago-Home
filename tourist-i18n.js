@@ -3,7 +3,7 @@ window.BLAGO_TOURIST_I18N = {
   he: {
     pageTitle: 'BLAGO home — דירות נופש באילת', metaDescription: 'דירות נופש נוחות באילת לחופשה ליד הים.',
     demo: 'גרסת הדגמה · הזמנות עדיין אינן פעילות', brandSubtitle: 'החופשה שלכם מתחילה כאן', brandHome: 'BLAGO home — דף הבית', openMenu: 'פתיחת תפריט',
-    navHome: 'ראשי', navProperties: 'הדירות שלנו', navAbout: 'למה אנחנו', navEilat: 'על אילת', navContacts: 'יצירת קשר', business: 'לחברות', book: 'לבחירת דירה',
+    navHome: 'ראשי', navProperties: 'הדירות שלנו', navAbout: 'למה אנחנו', navEilat: 'על אילת', navContacts: 'יצירת קשר', business: 'לחברות', businessWorkers: 'לעובדים זרים', whatsappNatalie: 'שלחו הודעה לנטלי ב-WhatsApp', book: 'לבחירת דירה',
     heroEyebrow: 'חופשה באילת', heroTitle: 'אילת', heroSubtitle: 'שמש. ים. החופשה המושלמת שלכם.', heroText: 'דירות נוחות עם כניסה נפרדת וחצר פרטית בלב אילת.',
     benefitsLabel: 'יתרונות', benefit1: 'דירות שנבדקו', benefit2: 'מיקום נוח', benefit3: 'הזמנה ישירה', benefit4: 'תמיכה במהלך השהייה',
     catalogEyebrow: 'בחרו את המקום שלכם', catalogTitle: 'הדירות שלנו', catalogText: 'דירות לחופשה משפחתית, זוגית או עם חברים באילת', catalogAction: 'לצפייה בכל הדירות',
@@ -17,7 +17,7 @@ window.BLAGO_TOURIST_I18N = {
   en: {
     pageTitle: 'BLAGO home — holiday apartments in Eilat', metaDescription: 'Comfortable holiday apartments in Eilat for a relaxing stay by the Red Sea.',
     demo: 'Demo version · bookings are not yet available', brandSubtitle: 'YOUR HOLIDAY STARTS HERE', brandHome: 'BLAGO home — home page', openMenu: 'Open menu',
-    navHome: 'Home', navProperties: 'Our apartments', navAbout: 'Why us', navEilat: 'About Eilat', navContacts: 'Contact', business: 'For business', book: 'Choose an apartment',
+    navHome: 'Home', navProperties: 'Our apartments', navAbout: 'Why us', navEilat: 'About Eilat', navContacts: 'Contact', business: 'For business', businessWorkers: 'For foreign workers', whatsappNatalie: 'Message Natalie on WhatsApp', book: 'Choose an apartment',
     heroEyebrow: 'A holiday in Eilat', heroTitle: 'Eilat', heroSubtitle: 'Sun. Sea. Your perfect getaway.', heroText: 'Comfortable apartments with private entrances and yards in Eilat.',
     benefitsLabel: 'Benefits', benefit1: 'Verified apartments', benefit2: 'Convenient locations', benefit3: 'Direct booking', benefit4: 'Support during your stay',
     catalogEyebrow: 'Choose your place', catalogTitle: 'Our apartments', catalogText: 'Apartments for a family holiday, a couple or a trip with friends', catalogAction: 'View all apartments',
@@ -31,7 +31,7 @@ window.BLAGO_TOURIST_I18N = {
   ru: {
     pageTitle: 'BLAGO home — квартиры для отдыха в Эйлате', metaDescription: 'Уютные квартиры для посуточной аренды и отдыха у Красного моря в Эйлате.',
     demo: 'Демонстрационная версия · бронирование пока не работает', brandSubtitle: 'ВАШ ОТДЫХ НАЧИНАЕТСЯ ЗДЕСЬ', brandHome: 'BLAGO home — главная', openMenu: 'Открыть меню',
-    navHome: 'Главная', navProperties: 'Наши квартиры', navAbout: 'Почему мы', navEilat: 'Об Эйлате', navContacts: 'Контакты', business: 'Для бизнеса', book: 'Выбрать жильё',
+    navHome: 'Главная', navProperties: 'Наши квартиры', navAbout: 'Почему мы', navEilat: 'Об Эйлате', navContacts: 'Контакты', business: 'Для бизнеса', businessWorkers: 'Для иностранных рабочих', whatsappNatalie: 'Написать Натали в WhatsApp', book: 'Выбрать жильё',
     heroEyebrow: 'Отдых в Эйлате', heroTitle: 'Эйлат', heroSubtitle: 'Солнце. Море. Ваш идеальный отдых.', heroText: 'Уютные квартиры с отдельным входом и собственным двором в Эйлате.',
     benefitsLabel: 'Преимущества', benefit1: 'Проверенные квартиры', benefit2: 'Удобное расположение', benefit3: 'Прямое бронирование', benefit4: 'Поддержка во время отдыха',
     catalogEyebrow: 'Выберите свой вариант', catalogTitle: 'Наши квартиры', catalogText: 'Для семейного отдыха, пары или поездки с друзьями', catalogAction: 'Смотреть все квартиры',
