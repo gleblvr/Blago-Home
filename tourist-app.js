@@ -136,7 +136,7 @@ function renderDetail(properties, id) {
   if (property.video) gallery.append(videoPreview(property.video, name, property.photos?.[0]));
   section.append(gallery);
   const info = el('div', undefined, 'tour-detail-copy');
-  const whatsapp = el('a', t('whatsappNatalie'), 'tour-primary'); whatsapp.href = 'https://wa.me/972542109127'; whatsapp.target = '_blank'; whatsapp.rel = 'noopener';
+  const whatsapp = el('a', t('whatsappNatalie'), 'tour-whatsapp-action'); whatsapp.href = 'https://wa.me/972542109127'; whatsapp.target = '_blank'; whatsapp.rel = 'noopener';
   info.append(el('h2', t('about')), el('p', localizeProperty(property, 'description')), el('h3', t('priceRequest')), whatsapp); section.append(info); main.append(section);
 }
 
